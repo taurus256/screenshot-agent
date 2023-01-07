@@ -1,10 +1,7 @@
 package ru.taustudio.duckview.agent;
 
-import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.TouchAction;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
-import org.junit.Before;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -12,21 +9,16 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import ru.taustudio.duckview.agent.driver.Device;
 
-import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Duration;
 
 @RunWith(JUnit4.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SpringSeleniumAgentApplicationTests {
 	private static IOSDriver driver;
-	private static Device device = Device.IPHONE_SE;
+	private static final Device device = Device.IPHONE_SE;
 	private static String webWiewHandle;
 
 	@BeforeAll
@@ -76,14 +68,13 @@ class SpringSeleniumAgentApplicationTests {
 	@Order(30)
 	public void closePrivateTab() throws InterruptedException {
 		driver.context("NATIVE_APP");
-		clickElement("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]");
 		clickElement("//XCUIElementTypeButton[@name=\"TabOverviewButton\"]");
 		clickElement("//XCUIElementTypeButton[@name=\"Close\"]");
 		clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
 	}
 
 	private void clickElement(String elementPath ) throws InterruptedException {
-		WebElement element= (WebElement)driver.findElement(By.xpath(elementPath));
+		WebElement element= driver.findElement(By.xpath(elementPath));
 		System.out.println("e1ement = " + element);
 		Thread.sleep(500);
 		element.click();

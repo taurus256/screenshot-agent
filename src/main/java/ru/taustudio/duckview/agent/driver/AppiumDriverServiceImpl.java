@@ -50,7 +50,7 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
     @Autowired
     ScreenshotControlFeignClient feignClient;
 
-    private AtomicLong lastCommandTime = new AtomicLong(Instant.now().getEpochSecond());
+    private final AtomicLong lastCommandTime = new AtomicLong(Instant.now().getEpochSecond());
 
     public AppiumDriverServiceImpl() {
     }
@@ -64,7 +64,6 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
     public void watchForSession(){
         if (Instant.now().minusSeconds(lastCommandTime.get()).getEpochSecond() > 30*60) {
             try {
-                System.out.println("Perform auto-update to save session");
                 driver.get("about:blank");
             } catch (Exception e) {
                 throw new RuntimeException(e);

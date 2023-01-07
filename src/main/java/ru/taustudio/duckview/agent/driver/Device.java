@@ -2,7 +2,7 @@ package ru.taustudio.duckview.agent.driver;
 
 public enum Device {
     IPHONE_SE("iPhone SE (3rd generation)"),
-    IPHONE_PRO("iPhone Pro Max"),
+    IPHONE_PRO("iPhone 14 Pro Max"),
     IPAD("iPad Air (5th generation)");
 
     Device(String systemName){
