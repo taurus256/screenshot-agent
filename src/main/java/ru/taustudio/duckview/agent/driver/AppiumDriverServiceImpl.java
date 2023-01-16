@@ -1,7 +1,11 @@
 package ru.taustudio.duckview.agent.driver;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +29,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -45,7 +50,8 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
     Device device;
     final Integer aShotTimeout = 100;
 
-    private static AppiumDriver driver;
+    private static IOSDriver driver;
+    Set<String> initialHandles;
 
     @Autowired
     ScreenshotControlFeignClient feignClient;
@@ -57,7 +63,12 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
 
     @PostConstruct
     public void init() {
-        initDriver();
+        try {
+            initDriver();
+        } catch (InterruptedException iex){
+            System.out.println("Application was interrupted");
+            System.exit(0);
+        }
     }
 
     @Scheduled(fixedRate = 30*60*1000)
@@ -71,7 +82,7 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
         }
     }
 
-    private void initDriver() {
+    private void initDriver() throws InterruptedException {
         System.out.println("Device: " + device);
         System.out.println("INITIALIZATION...");
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
@@ -91,7 +102,11 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        driver = new AppiumDriver(url, desiredCapabilities);
+        driver = new IOSDriver(url, desiredCapabilities);
+        System.out.println("CONFIGURE BROWSER...");
+        initialHandles = driver.getContextHandles();
+        enterPrivateMode();
+        setNewTabContext(driver.getContextHandles());
         System.out.println("READY TO WORK");
     }
 
@@ -107,7 +122,7 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
         lastCommandTime.set(Instant.now().getEpochSecond());
 
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
-        driver.get(url);
+        ((WebDriver)driver).get(url);
         System.out.println("Do screenshot ");
 
         Screenshot s = new AShot()
@@ -118,9 +133,10 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
         ImageOutputStream is = new FileCacheImageOutputStream(os, new File("linux".equals(operationSystem) ? "/tmp" : "C:\\Temp"));
         ImageIO.write(s.getImage(), "PNG", is);
         feignClient.sendResult(jobId, new ByteArrayResource(os.toByteArray()));
+        closePrivateTab();
     }
 
-    private ShootingStrategy getStrategyForDevice(Device device) throws Exception {
+    private ShootingStrategy getStrategyForDevice(Device device) {
         switch(device){
             case IPHONE_SE: return iPhoneSEShootingStrategy();
             case IPAD: return iPadAirShootingStrategy();
@@ -144,5 +160,43 @@ public class AppiumDriverServiceImpl implements ScreenshotDriverService {
     private ShootingStrategy iPhoneProMaxShootingStrategy(){
         return ShootingStrategies
                 .viewportRetina(500, new FixedCutStrategy(58,122), 3f);
+    }
+
+    public void enterPrivateMode() throws InterruptedException {
+        driver.context("NATIVE_APP").switchTo();
+        clickElement("//XCUIElementTypeButton[@name=\"TabOverviewButton\"]");
+        clickElement("//XCUIElementTypeButton[@name=\"TabGroupsButton\"]");
+        clickElement("//XCUIElementTypeCell[@name=\"TabGroupCell?Title=Private&isPrivate=true\"]");
+        clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
+    }
+
+    public void closePrivateTab() throws InterruptedException {
+        System.out.println("Contexts:" + driver.getContextHandles());
+        System.out.println("Current:" + driver.getContext());
+        driver.context("NATIVE_APP");
+        if (driver.findElements(By.xpath("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]")).size() > 0){
+            clickElement("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]");
+        }
+        clickElement("//XCUIElementTypeButton[@name=\"TabOverviewButton\"]");
+        clickElement("//XCUIElementTypeButton[@name=\"Close\"]");
+        clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
+        setNewTabContext(driver.getContextHandles());
+    }
+
+    private void clickElement(String elementPath ) throws InterruptedException {
+        WebElement element= driver.findElement(By.xpath(elementPath));
+        Thread.sleep(500);
+        element.click();
+    }
+
+    private void setNewTabContext(Set<String> newHandles){
+        System.out.println("setting new context, availible:" + driver.getContextHandles());
+        System.out.println("Current:" + driver.getContext());
+        newHandles.removeAll(initialHandles);
+        if (newHandles.size() == 1) {
+            System.out.println("SET = " + newHandles.stream().findAny().get());
+            driver.context(newHandles.stream().findAny().get());
+        }else
+            throw new IllegalArgumentException();
     }
 }
