@@ -1,7 +1,5 @@
 package ru.taustudio.duckview.agent.driver;
 
-import org.springframework.core.io.ByteArrayResource;
-
-public interface ScreenshotDriverService {
+public interface Worker {
     void doScreenshot(Long jobId, String url, Integer width, Integer height) throws Exception;
 }

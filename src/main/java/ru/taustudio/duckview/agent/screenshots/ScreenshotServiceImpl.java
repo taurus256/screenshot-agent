@@ -1,29 +1,12 @@
 package ru.taustudio.duckview.agent.screenshots;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.opera.OperaDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
-import ru.taustudio.duckview.agent.driver.ScreenshotDriverService;
+import ru.taustudio.duckview.agent.driver.Worker;
 import ru.taustudio.duckview.agent.job.JobDescription;
-import ru.yandex.qatools.ashot.AShot;
-import ru.yandex.qatools.ashot.Screenshot;
-import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
 import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileCacheImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +19,7 @@ public class ScreenshotServiceImpl implements ScreenshotService {
 	ScreenshotControlFeignClient feignClient;
 
 	@Autowired
-	ScreenshotDriverService driverService;
+	Worker driverService;
 
 	final Integer QUEUE_BOUND = 5;
 	final Integer ADDING_TIMEOUT = 5;

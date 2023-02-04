@@ -6,16 +6,17 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.safari.SafariDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
+import pazone.ishot.IShot;
+import pazone.ishot.Screenshot;
+import pazone.ishot.ShootingStrategies;
+import pazone.ishot.cutter.FixedCutStrategy;
 import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
-import ru.yandex.qatools.ashot.AShot;
-import ru.yandex.qatools.ashot.Screenshot;
-import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
-
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -26,15 +27,15 @@ import java.io.File;
 import java.io.IOException;
 
 @ConditionalOnProperty(value="driver",
-        havingValue = "selenium",
+        havingValue = "safari_desktop",
         matchIfMissing = false)
 @Component
-public class SeleniumScreenshotDriverServiceImpl implements ScreenshotDriverService {
+public class SafariDesktopWorkerImpl implements Worker {
     @Value("${operationSystem:linux}")
     String operationSystem;
     @Value("${browser:firefox}")
     String driverType;
-    final Integer aShotTimeout = 100;
+    final Integer aShotTimeout = 1000;
 
     @Autowired
     ScreenshotControlFeignClient feignClient;
@@ -53,11 +54,11 @@ public class SeleniumScreenshotDriverServiceImpl implements ScreenshotDriverServ
         System.out.println("Setting size to " + width + " x " + height);
         driver.manage().window().setSize(new Dimension(width, height));
         System.out.println("Do screenshot ");
-        Screenshot s = new AShot()
-                .shootingStrategy(ShootingStrategies.viewportPasting(aShotTimeout))
+        Screenshot s = new IShot()
+                .shootingStrategy(ShootingStrategies.viewportNonRetina(ShootingStrategies.simple(),aShotTimeout,new FixedCutStrategy(1,0)))
                 .takeScreenshot(driver);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageOutputStream is= new FileCacheImageOutputStream(os, new File("linux".equals(operationSystem) ? "/tmp" : "C:\\Temp"));
+        ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
         ImageIO.write(s.getImage(), "PNG", is);
         driver.quit();
         feignClient.sendResult(jobId, new ByteArrayResource(os.toByteArray()));
@@ -98,6 +99,13 @@ public class SeleniumScreenshotDriverServiceImpl implements ScreenshotDriverServ
                     case "chrome": {
                         System.setProperty("webdriver.chrome.driver", "windows/" + "chromedriver.exe");
                         return new ChromeDriver();
+                    }
+                }
+            }
+            case "macos":{
+                switch (driverType) {
+                    case "safari": {
+                        return new SafariDriver();
                     }
                 }
             }

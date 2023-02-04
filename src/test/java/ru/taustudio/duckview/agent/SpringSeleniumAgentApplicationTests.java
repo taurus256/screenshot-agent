@@ -9,10 +9,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import pazone.ashot.AShot;
-import pazone.ashot.Screenshot;
-import pazone.ashot.ShootingStrategies;
-import pazone.ashot.cutter.FixedCutStrategy;
+import pazone.ishot.IShot;
+import pazone.ishot.Screenshot;
+import pazone.ishot.ShootingStrategies;
+import pazone.ishot.cutter.FixedCutStrategy;
 import ru.taustudio.duckview.agent.driver.Device;
 
 import javax.imageio.ImageIO;
@@ -77,7 +77,7 @@ class SpringSeleniumAgentApplicationTests {
 	public void openSite() throws InterruptedException, IOException {
 		((WebDriver)driver).get("http://mypsy.org");
 		System.out.println("RETRIEVE WEB SITE");
-		Screenshot s = new AShot()
+		Screenshot s = new IShot()
 				.shootingStrategy(ShootingStrategies.viewportRetina(500,
 						new FixedCutStrategy(20,0), 2f))
 				.takeScreenshot(driver);
@@ -95,8 +95,8 @@ class SpringSeleniumAgentApplicationTests {
 	public void openSite2() throws InterruptedException, IOException {
 		((WebDriver)driver).get("http://mypsy.org");
 		System.out.println("RETRIEVE WEB SITE");
-		Screenshot s = new AShot()
-				.shootingStrategy(ShootingStrategies.viewportRetina(500,
+		Screenshot s = new IShot()
+				.shootingStrategy(ShootingStrategies.viewportRetina(2000,
 						new FixedCutStrategy(20,0), 2f))
 				.takeScreenshot(driver);
 		System.out.println("s.getImage().getHeight() = " + s.getImage().getHeight());
@@ -113,6 +113,7 @@ class SpringSeleniumAgentApplicationTests {
 		System.out.println("Contexts:" + driver.getContextHandles());
 		System.out.println("Current:" + driver.getContext());
 		driver.context("NATIVE_APP").switchTo();
+		System.out.println("Current after switching:" + driver.getContext());
 		clickElement("//XCUIElementTypeButton[@name=\"TabOverviewButton\"]");
 		clickElement("//XCUIElementTypeButton[@name=\"Close\"]");
 		clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
