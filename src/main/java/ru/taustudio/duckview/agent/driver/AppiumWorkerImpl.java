@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 
+import ru.taustudio.duckview.agent.aop.RetrytOnFailure;
 import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
 
 @Component
@@ -94,6 +95,7 @@ public class AppiumWorkerImpl implements Worker {
         }
     }
 
+    @RetrytOnFailure(3)
     private void initDriver() throws InterruptedException {
         System.out.println("Device: " + device);
         System.out.println("INITIALIZATION...");

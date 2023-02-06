@@ -16,6 +16,7 @@ import pazone.ishot.IShot;
 import pazone.ishot.Screenshot;
 import pazone.ishot.ShootingStrategies;
 import pazone.ishot.cutter.FixedCutStrategy;
+import ru.taustudio.duckview.agent.aop.RetrytOnFailure;
 import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +48,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         System.out.println("driverType = " + driverType);
     }
 
+    @RetrytOnFailure(2)
     public void doScreenshot(Long jobId, String url, Integer width, Integer height) throws IOException, InterruptedException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
         RemoteWebDriver driver = initDriver();
