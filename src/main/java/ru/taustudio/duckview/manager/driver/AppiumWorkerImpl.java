@@ -20,11 +20,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pazone.ashot.AShot;
-import pazone.ashot.Screenshot;
-import pazone.ashot.ShootingStrategy;
-import pazone.ashot.cutter.CutStrategy;
-import pazone.ashot.cutter.FixedCutStrategy;
+import pazone.ishot.IShot;
+import pazone.ishot.Screenshot;
+import pazone.ishot.ShootingStrategies;
+import pazone.ishot.ShootingStrategy;
+import pazone.ishot.cutter.FixedCutStrategy;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -41,7 +41,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
+import ru.taustudio.duckview.agent.aop.RetrytOnFailure;
+import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
 
 @Component
 @ConditionalOnProperty(value="driver",
@@ -100,6 +101,7 @@ public class AppiumWorkerImpl implements Worker {
         }
     }
 
+    @RetrytOnFailure(3)
     private void initDriver() throws InterruptedException {
         System.out.println("Device: " + device);
         System.out.println("INITIALIZATION...");
