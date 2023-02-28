@@ -18,6 +18,7 @@ import pazone.ashot.ShootingStrategies;
 import pazone.ashot.cutter.FixedCutStrategy;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 import ru.taustudio.duckview.agent.aop.RetrytOnFailure;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -108,6 +109,10 @@ public class SafariDesktopWorkerImpl implements Worker {
                 switch (driverType) {
                     case "safari": {
                         return new SafariDriver();
+                    }
+                    case "firefox" : {
+                        WebDriverManager.firefoxdriver().setup();
+                        return new FirefoxDriver();
                     }
                 }
             }
