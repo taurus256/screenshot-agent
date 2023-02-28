@@ -52,7 +52,7 @@
 			<artifactId>selenium-java</artifactId>
 			<version>4.0.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/ru.yandex.qatools.ashot/ashot -->
+<!--		 https://mvnrepository.com/artifact/ru.yandex.qatools.ashot/ashot-->
 		<dependency>
 			<groupId>ru.yandex.qatools.ashot</groupId>
 			<artifactId>ashot</artifactId>
@@ -65,8 +65,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.github.pazone</groupId>
-			<artifactId>ishot</artifactId>
-			<version>1.6.0-SNAPSHOT-TAU-7</version>
+			<artifactId>ashot</artifactId>
+			<version>1.6.0-SNAPSHOT-TAU-8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -83,6 +83,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -132,7 +139,7 @@
 						<configuration>
 							<classifier>spring-boot</classifier>
 							<mainClass>
-								ru.taustudio.duckview.agent.SpringSeleniumAgentApplication
+								ru.taustudio.duckview.manager.SpringSeleniumAgentApplication
 							</mainClass>
 						</configuration>
 					</execution>

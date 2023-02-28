@@ -1,10 +1,10 @@
-package ru.taustudio.duckview.agent.screenshots;
+package ru.taustudio.duckview.manager.screenshots;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.taustudio.duckview.agent.driver.Worker;
-import ru.taustudio.duckview.agent.job.JobDescription;
+import ru.taustudio.duckview.manager.driver.Worker;
+import ru.taustudio.duckview.manager.job.JobDescription;
 
 import javax.annotation.PostConstruct;
 

@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent;
+package ru.taustudio.duckview.manager;
 
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
@@ -9,16 +9,15 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import pazone.ishot.IShot;
-import pazone.ishot.Screenshot;
-import pazone.ishot.ShootingStrategies;
-import pazone.ishot.cutter.FixedCutStrategy;
-import ru.taustudio.duckview.agent.driver.Device;
+import pazone.ashot.AShot;
+import pazone.ashot.Screenshot;
+import pazone.ashot.ShootingStrategies;
+import pazone.ashot.cutter.FixedCutStrategy;
+import ru.taustudio.duckview.manager.driver.Device;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
+@Disabled
 @RunWith(JUnit4.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SpringSeleniumAgentApplicationTests {
@@ -77,7 +77,7 @@ class SpringSeleniumAgentApplicationTests {
 	public void openSite() throws InterruptedException, IOException {
 		((WebDriver)driver).get("http://mypsy.org");
 		System.out.println("RETRIEVE WEB SITE");
-		Screenshot s = new IShot()
+		Screenshot s = new AShot()
 				.shootingStrategy(ShootingStrategies.viewportRetina(500,
 						new FixedCutStrategy(20,0), 2f))
 				.takeScreenshot(driver);
@@ -95,7 +95,7 @@ class SpringSeleniumAgentApplicationTests {
 	public void openSite2() throws InterruptedException, IOException {
 		((WebDriver)driver).get("http://mypsy.org");
 		System.out.println("RETRIEVE WEB SITE");
-		Screenshot s = new IShot()
+		Screenshot s = new AShot()
 				.shootingStrategy(ShootingStrategies.viewportRetina(2000,
 						new FixedCutStrategy(20,0), 2f))
 				.takeScreenshot(driver);

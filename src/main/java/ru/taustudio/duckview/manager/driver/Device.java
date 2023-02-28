@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.driver;
+package ru.taustudio.duckview.manager.driver;
 
 public enum Device {
     IPHONE_SE("iPhone SE (3rd generation)"),

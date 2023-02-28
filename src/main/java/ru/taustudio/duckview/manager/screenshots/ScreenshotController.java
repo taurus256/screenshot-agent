@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.screenshots;
+package ru.taustudio.duckview.manager.screenshots;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

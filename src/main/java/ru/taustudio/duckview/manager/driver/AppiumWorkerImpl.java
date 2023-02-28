@@ -1,4 +1,9 @@
-package ru.taustudio.duckview.agent.driver;
+package ru.taustudio.duckview.manager.driver;
+
+import static pazone.ashot.ShootingStrategies.cutting;
+import static pazone.ashot.ShootingStrategies.scaling;
+import static pazone.ashot.ShootingStrategies.simple;
+import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
@@ -15,11 +20,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pazone.ishot.IShot;
-import pazone.ishot.Screenshot;
-import pazone.ishot.ShootingStrategies;
-import pazone.ishot.ShootingStrategy;
-import pazone.ishot.cutter.FixedCutStrategy;
+import pazone.ashot.AShot;
+import pazone.ashot.Screenshot;
+import pazone.ashot.ShootingStrategy;
+import pazone.ashot.cutter.CutStrategy;
+import pazone.ashot.cutter.FixedCutStrategy;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,7 +41,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
+import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
 @Component
 @ConditionalOnProperty(value="driver",
@@ -47,6 +52,7 @@ public class AppiumWorkerImpl implements Worker {
 
 
     public static final String NATIVE_APP = "NATIVE_APP";
+    public static final int INTERSECTION = 40;
     @Value("${appium.port:4723}")
     String appiumPort;
     @Value("${operationSystem:linux}")
@@ -137,7 +143,7 @@ public class AppiumWorkerImpl implements Worker {
         ((WebDriver)driver).get(url);
         System.out.println("Do screenshot ");
 
-        Screenshot s = new IShot()
+        Screenshot s = new AShot()
                 .shootingStrategy(getStrategyForDevice(device))
                 .takeScreenshot(driver);
 
@@ -159,19 +165,18 @@ public class AppiumWorkerImpl implements Worker {
 
     //iPhone SE (3rd generation)
     private ShootingStrategy iPhoneSEShootingStrategy(){
-        return ShootingStrategies.viewportRetina(500,
+        return viewportRetinaIntersect(500,
                 new FixedCutStrategy(20,0), 2f);
     }
 
     //iPad Air (5th generation)
     private ShootingStrategy iPadAirShootingStrategy(){
-        return ShootingStrategies.viewportRetina(3000, 76, 0, 2.0f);
+        return viewportRetinaIntersect(3000, 76, 0, 2.0f);
     }
 
     //iPhone Pro Max
     private ShootingStrategy iPhoneProMaxShootingStrategy(){
-        return ShootingStrategies
-                .viewportRetina(500, new FixedCutStrategy(58,122), 3f);
+        return viewportRetinaIntersect(500, new FixedCutStrategy(58,122), 3f);
     }
 
     public void enterPrivateMode() throws InterruptedException {
@@ -211,5 +216,26 @@ public class AppiumWorkerImpl implements Worker {
             driver.context(newHandles.stream().findAny().get());
         }else
             throw new IllegalArgumentException();
+    }
+
+    // переопределенный стратегии AShot с управлением наложением
+    public static ShootingStrategy viewportNonRetinaIntersect(ShootingStrategy shootingStrategy, int scrollTimeout,
+        CutStrategy cutStrategy) {
+        return viewportPasting(cutting(shootingStrategy, cutStrategy), scrollTimeout, INTERSECTION);
+    }
+
+    public static ShootingStrategy viewportRetinaIntersect(ShootingStrategy shootingStrategy, int scrollTimeout,
+        CutStrategy cutStrategy, float dpr) {
+        ShootingStrategy scalingDecorator = scaling(shootingStrategy, dpr);
+        return viewportNonRetinaIntersect(scalingDecorator, scrollTimeout, cutStrategy);
+    }
+
+
+    public static ShootingStrategy viewportRetinaIntersect(int scrollTimeout, int headerToCut, int footerToCut, float dpr) {
+        return viewportRetinaIntersect(simple(), scrollTimeout, new FixedCutStrategy(headerToCut, footerToCut), dpr);
+    }
+
+    public static ShootingStrategy viewportRetinaIntersect(int scrollTimeout, CutStrategy cutStrategy, float dpr) {
+        return viewportRetinaIntersect(simple(), scrollTimeout, cutStrategy, dpr);
     }
 }

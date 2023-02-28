@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.job;
+package ru.taustudio.duckview.manager.job;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

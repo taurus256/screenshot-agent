@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent;
+package ru.taustudio.duckview.manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,12 +10,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 @EnableWebMvc
 @EnableEurekaClient
-@EnableFeignClients(basePackages="ru.taustudio.duckview.agent.screenshots")
+@EnableFeignClients(basePackages= "ru.taustudio.duckview.manager.screenshots")
 @EnableScheduling
 public class SpringSeleniumAgentApplication {
 
 	public static void main(String[] args) {
-
 		SpringApplication.run(SpringSeleniumAgentApplication.class, args);
 	}
 

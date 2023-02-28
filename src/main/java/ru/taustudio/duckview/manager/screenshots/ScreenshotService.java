@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.screenshots;
+package ru.taustudio.duckview.manager.screenshots;
 
 import java.io.IOException;
 

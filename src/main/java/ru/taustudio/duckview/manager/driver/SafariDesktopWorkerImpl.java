@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.driver;
+package ru.taustudio.duckview.manager.driver;
 
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
-import pazone.ishot.IShot;
-import pazone.ishot.Screenshot;
-import pazone.ishot.ShootingStrategies;
-import pazone.ishot.cutter.FixedCutStrategy;
-import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
+import pazone.ashot.AShot;
+import pazone.ashot.Screenshot;
+import pazone.ashot.ShootingStrategies;
+import pazone.ashot.cutter.FixedCutStrategy;
+import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -54,7 +54,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         System.out.println("Setting size to " + width + " x " + height);
         driver.manage().window().setSize(new Dimension(width, height));
         System.out.println("Do screenshot ");
-        Screenshot s = new IShot()
+        Screenshot s = new AShot()
                 .shootingStrategy(ShootingStrategies.viewportNonRetina(ShootingStrategies.simple(),aShotTimeout,new FixedCutStrategy(1,0)))
                 .takeScreenshot(driver);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
