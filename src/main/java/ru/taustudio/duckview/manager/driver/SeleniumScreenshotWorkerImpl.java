@@ -1,18 +1,13 @@
 package ru.taustudio.duckview.manager.driver;
 
 import java.util.function.Supplier;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.opera.OperaDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariDriver;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Component;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
@@ -38,17 +33,21 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
     final Integer aShotTimeout = 1000;
 
 
-    private Supplier<RemoteWebDriver> driverSupplier;
+    private Supplier<WebDriver> driverSupplier;
     private int headerToCut;
     private int footerToCut;
-    private int scrollToCut;
+    private int rightScrollToCut;
+    private int correctDesiredWidthOn;
     private ScreenshotControlFeignClient feignClient;
 
-    public SeleniumScreenshotWorkerImpl(Supplier<RemoteWebDriver> driverSupplier, int headerToCut, int footerToCut, int scrollToCut, ScreenshotControlFeignClient feignClient){
+    public SeleniumScreenshotWorkerImpl(Supplier<WebDriver> driverSupplier, int headerToCut,
+        int footerToCut, int correctDesiredWidthOn, int rightScrollToCut,
+        ScreenshotControlFeignClient feignClient){
         this.driverSupplier = driverSupplier;
         this.headerToCut = headerToCut;
         this.footerToCut = footerToCut;
-        this.scrollToCut = scrollToCut;
+        this.correctDesiredWidthOn = correctDesiredWidthOn;
+        this.rightScrollToCut = rightScrollToCut;
         this.feignClient = feignClient;
     }
 
@@ -59,28 +58,41 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
         System.out.println("driverType = " + driverType);
     }
 
-    public void doScreenshot(Long jobId, String url, Integer width, Integer height) throws IOException, InterruptedException {
+    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
-        RemoteWebDriver driver = initDriver();
+        WebDriver driver = initDriver();
+        driver.manage().window().setSize(new Dimension(width + rightScrollToCut + correctDesiredWidthOn, height + rightScrollToCut + correctDesiredWidthOn));
         driver.get(url);
-        System.out.println("Setting size to " + width + " x " + height);
-        driver.manage().window().setSize(new Dimension(width, height));
+
+//        Dimension win_size = driver.manage().window().getSize();
+//        WebElement html = driver.findElement(By.tagName("html"));
+//        int inner_width = Integer.parseInt(html.getAttribute("clientWidth"));
+//        int inner_height = Integer.parseInt(html.getAttribute("clientHeight"));
+//
+//// set the inner size of the window to 400 x 400 (scrollbar excluded)
+//        driver.manage().window().setSize(new Dimension(
+//            win_size.width + (width - inner_width) + correctDesiredWidthOn,
+//            win_size.height + (height - inner_height)
+//        ));
+
+        System.out.println("Setting size to " + driver.manage().window().getSize().getWidth() + " x " + driver.manage().window().getSize().getHeight());
+
         System.out.println("Do screenshot ");
-//        Screenshot s = new AShot()
-//                .shootingStrategy(ShootingStrategies.viewportPasting(aShotTimeout))
-//                .takeScreenshot(driver);
         Screenshot s = new AShot()
-            .shootingStrategy(
-                pazone.ashot.ShootingStrategies.viewportNonRetina(ShootingStrategies.simple(),aShotTimeout,new FixedCutStrategy(headerToCut,footerToCut)))
-            .takeScreenshot(driver);
+                .shootingStrategy(ShootingStrategies.viewportPasting(aShotTimeout))
+                .takeScreenshot(driver);
+//        Screenshot s = new AShot()
+//            .shootingStrategy(
+//                pazone.ashot.ShootingStrategies.viewportNonRetina(ShootingStrategies.simple(),aShotTimeout,new FixedCutStrategy(headerToCut,footerToCut)))
+//            .takeScreenshot(driver);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
-        ImageIO.write(s.getImage(), "PNG", is);
+        ImageIO.write(s.getImage().getSubimage(0, 0, s.getImage().getWidth() - rightScrollToCut, s.getImage().getHeight()), "PNG", is);
         driver.quit();
-        feignClient.sendResult(jobId, new ByteArrayResource(os.toByteArray()));
+        feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
     }
 
-    RemoteWebDriver initDriver() {
+    WebDriver initDriver() {
         return driverSupplier.get();
 //        switch (operationSystem) {
 //            case "linux": {

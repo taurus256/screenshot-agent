@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.aop;
+package ru.taustudio.duckview.manager.aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

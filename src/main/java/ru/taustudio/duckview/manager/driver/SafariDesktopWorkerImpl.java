@@ -17,7 +17,7 @@ import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
 import pazone.ashot.cutter.FixedCutStrategy;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
-import ru.taustudio.duckview.agent.aop.RetrytOnFailure;
+import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 import javax.annotation.PostConstruct;
@@ -50,7 +50,7 @@ public class SafariDesktopWorkerImpl implements Worker {
     }
 
     @RetrytOnFailure(2)
-    public void doScreenshot(Long jobId, String url, Integer width, Integer height) throws IOException, InterruptedException {
+    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
         RemoteWebDriver driver = initDriver();
         driver.get(url);
@@ -64,7 +64,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
         ImageIO.write(s.getImage(), "PNG", is);
         driver.quit();
-        feignClient.sendResult(jobId, new ByteArrayResource(os.toByteArray()));
+        feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
     }
 
     private RemoteWebDriver initDriver() {

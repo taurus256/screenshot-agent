@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.aop;
+package ru.taustudio.duckview.manager.aop;
 
 public class TooManyAttemptsException extends Exception {
     public TooManyAttemptsException(String message){

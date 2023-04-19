@@ -1,4 +1,4 @@
-package ru.taustudio.duckview.agent.aop;
+package ru.taustudio.duckview.manager.aop;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

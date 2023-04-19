@@ -20,11 +20,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pazone.ishot.IShot;
-import pazone.ishot.Screenshot;
-import pazone.ishot.ShootingStrategies;
-import pazone.ishot.ShootingStrategy;
-import pazone.ishot.cutter.FixedCutStrategy;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -41,8 +36,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-import ru.taustudio.duckview.agent.aop.RetrytOnFailure;
-import ru.taustudio.duckview.agent.screenshots.ScreenshotControlFeignClient;
+import pazone.ashot.AShot;
+import pazone.ashot.Screenshot;
+import pazone.ashot.ShootingStrategy;
+import pazone.ashot.cutter.CutStrategy;
+import pazone.ashot.cutter.FixedCutStrategy;
+import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
+import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
 @Component
 @ConditionalOnProperty(value="driver",
@@ -138,7 +138,7 @@ public class AppiumWorkerImpl implements Worker {
     }
 
     @Override
-    public void doScreenshot(Long jobId, String url, Integer width, Integer height) throws Exception {
+    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws Exception {
         lastCommandTime.set(Instant.now().getEpochSecond());
 
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
@@ -152,7 +152,7 @@ public class AppiumWorkerImpl implements Worker {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageOutputStream is = new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
         ImageIO.write(s.getImage(), "PNG", is);
-        feignClient.sendResult(jobId, new ByteArrayResource(os.toByteArray()));
+        feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
         closePrivateTab();
     }
 

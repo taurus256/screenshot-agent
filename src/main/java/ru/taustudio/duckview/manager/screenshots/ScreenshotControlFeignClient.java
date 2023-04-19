@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "control-app", path="/job")
 public interface ScreenshotControlFeignClient {
-	@PutMapping("/{jobId}")
-	public String sendResult(@PathVariable Long jobId, @RequestBody ByteArrayResource bars);
+	@PutMapping("/{jobUUID}")
+	public String sendResult(@PathVariable String jobUUID, @RequestBody ByteArrayResource bars);
 }
