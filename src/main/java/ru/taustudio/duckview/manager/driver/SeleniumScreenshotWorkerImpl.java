@@ -26,10 +26,8 @@ import java.io.IOException;
         havingValue = "selenium",
         matchIfMissing = false)
 public class SeleniumScreenshotWorkerImpl implements Worker {
-    @Value("${operationSystem:linux}")
     String operationSystem;
-    @Value("${browser:firefox}")
-    String driverType;
+
     final Integer aShotTimeout = 1000;
 
 
@@ -40,9 +38,10 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
     private int correctDesiredWidthOn;
     private ScreenshotControlFeignClient feignClient;
 
-    public SeleniumScreenshotWorkerImpl(Supplier<WebDriver> driverSupplier, int headerToCut,
+    public SeleniumScreenshotWorkerImpl(String operationSystem, Supplier<WebDriver> driverSupplier, int headerToCut,
         int footerToCut, int correctDesiredWidthOn, int rightScrollToCut,
         ScreenshotControlFeignClient feignClient){
+        this.operationSystem = operationSystem;
         this.driverSupplier = driverSupplier;
         this.headerToCut = headerToCut;
         this.footerToCut = footerToCut;
@@ -53,9 +52,7 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
 
     @PostConstruct
     public void init(){
-        System.out.println("AGENT STARTED FOR: ");
-        System.out.println("operationSystem = " + operationSystem);
-        System.out.println("driverType = " + driverType);
+        System.out.println("WORKER STARTED");
     }
 
     public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {

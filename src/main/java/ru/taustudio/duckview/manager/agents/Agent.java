@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.openqa.selenium.WebDriver;
+import org.springframework.beans.factory.annotation.Value;
 import ru.taustudio.duckview.manager.driver.Worker;
 import ru.taustudio.duckview.shared.JobDescription;
 
@@ -19,9 +20,21 @@ import ru.taustudio.duckview.shared.JobDescription;
 public abstract class Agent {
   protected KafkaConsumer<String,JobDescription> consumer;
 
+
   private String agentName;
   private Worker worker;
 
+  @Value("${spring.kafka.bootstrap-servers}")
+  private String boostrapServers;
+
+  @Value("${spring.kafka.properties.sasl.jaas.config}")
+  private String saslConfig;
+
+  @Value("${spring.kafka.properties.sasl.mechanism}")
+  private String saslMechanism;
+
+  @Value("${spring.kafka.properties.security.protocol}")
+  private String saslProtocol;
 
   public Agent(String agentName, Worker worker){
     this.agentName = agentName;
@@ -38,12 +51,17 @@ public abstract class Agent {
 
   protected void initConsumer(){
     Properties props = new Properties();
-    props.put("bootstrap.servers", "localhost:9092");
-    props.put("group.id", "test");
+    props.put("bootstrap.servers", boostrapServers);
+    props.put("group.id", "listeners");
     props.put("enable.auto.commit", "false");
     props.put("max.poll.records", "1");
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     props.put("value.deserializer", "ru.taustudio.duckview.manager.config.DuckViewDeserializer");
+    props.put("sasl.jaas.config", saslConfig);
+    props.put("sasl.mechanism", saslMechanism);
+    props.put("security.protocol", saslProtocol);
+    props.put("jaas.enabled", true);
+
     consumer = new KafkaConsumer<>(props);
     consumer.subscribe(Arrays.asList(agentName));
   }

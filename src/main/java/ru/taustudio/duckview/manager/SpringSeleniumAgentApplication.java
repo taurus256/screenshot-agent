@@ -17,6 +17,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 public class SpringSeleniumAgentApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("webdriver.http.factory", "jdk-http-client");
 		SpringApplication.run(SpringSeleniumAgentApplication.class, args);
 	}
 

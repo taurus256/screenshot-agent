@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.taustudio.duckview</groupId>
 	<artifactId>SpringSeleniumAgent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>SpringSeleniumAgent</name>
 	<description>SpringSeleniumAgent</description>
 	<properties>
@@ -50,7 +50,12 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
-			<version>4.0.0</version>
+			<version>4.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-http-jdk-client</artifactId>
+			<version>4.5.0</version>
 		</dependency>
 <!--		 https://mvnrepository.com/artifact/ru.yandex.qatools.ashot/ashot-->
 		<dependency>

@@ -4,7 +4,6 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class SafariDesktopWorkerImpl implements Worker {
     ScreenshotControlFeignClient feignClient;
 
     @PostConstruct
-    public void init(){
+    public void init(String agentName){
         System.out.println("AGENT STARTED FOR: ");
         System.out.println("operationSystem = " + operationSystem);
         System.out.println("driverType = " + driverType);
@@ -75,10 +74,7 @@ public class SafariDesktopWorkerImpl implements Worker {
                         System.setProperty("webdriver.gecko.driver", "linux/" + "geckodriver");
                         return new FirefoxDriver();
                     }
-                    case "opera": {
-                        System.setProperty("webdriver.opera.driver", "linux/" + "operadriver");
-                        return new OperaDriver();
-                    }
+
                     case "chrome": {
                         System.setProperty("webdriver.chrome.driver", "linux/" + "chromedriver");
                         return new ChromeDriver();
@@ -94,10 +90,6 @@ public class SafariDesktopWorkerImpl implements Worker {
                     case "firefox": {
                         System.setProperty("webdriver.gecko.driver", "windows/" + "geckodriver.exe");
                         return new FirefoxDriver();
-                    }
-                    case "opera": {
-                        System.setProperty("webdriver.opera.driver", "windows/" + "operadriver.exe");
-                        return new OperaDriver();
                     }
                     case "chrome": {
                         System.setProperty("webdriver.chrome.driver", "windows/" + "chromedriver.exe");

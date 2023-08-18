@@ -7,13 +7,14 @@ import org.springframework.stereotype.Component;
 import ru.taustudio.duckview.manager.driver.SeleniumScreenshotWorkerImpl;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
-@ConditionalOnExpression("'${agents}'.contains(\"LIN_FIREFOX\")")
+@ConditionalOnExpression("'${agents}'.contains(\"WIN_FIREFOX\")")
 @Component
-public class FirefoxLinAgent extends Agent {
-  public FirefoxLinAgent(ScreenshotControlFeignClient feignClient){
-    super("LIN_FIREFOX", new SeleniumScreenshotWorkerImpl(() -> {
+public class WinFirefoxAgent extends Agent {
+  public WinFirefoxAgent(ScreenshotControlFeignClient feignClient){
+    super("WIN_FIREFOX", new SeleniumScreenshotWorkerImpl(
+      "windows",
+      () -> {
       FirefoxOptions options = new FirefoxOptions();
-      options.addPreference("dom.disable_scrollbars", true);
       return WebDriverManager.firefoxdriver().capabilities(options).create();
       }, 0, 0, 0, 0,
         feignClient));

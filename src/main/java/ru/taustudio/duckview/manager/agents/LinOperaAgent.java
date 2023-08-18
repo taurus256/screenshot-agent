@@ -8,9 +8,11 @@ import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
 @ConditionalOnExpression("'${agents}'.contains(\"LIN_OPERA\")")
 @Component
-public class OperaLinAgent extends Agent {
-  public OperaLinAgent(ScreenshotControlFeignClient feignClient){
-    super("LIN_OPERA", new SeleniumScreenshotWorkerImpl(() -> {
+public class LinOperaAgent extends Agent {
+  public LinOperaAgent(ScreenshotControlFeignClient feignClient){
+    super("LIN_OPERA", new SeleniumScreenshotWorkerImpl(
+      "linux",
+      () -> {
       return WebDriverManager.operadriver().create();
     }, 0, 0, 42, 16,
         feignClient));
