@@ -220,7 +220,7 @@ public class AppiumWorkerImpl implements Worker {
             throw new IllegalArgumentException();
     }
 
-    // переопределенный стратегии AShot с управлением наложением
+    // переопределенные
     public static ShootingStrategy viewportNonRetinaIntersect(ShootingStrategy shootingStrategy, int scrollTimeout,
         CutStrategy cutStrategy) {
         return viewportPasting(cutting(shootingStrategy, cutStrategy), scrollTimeout, INTERSECTION);

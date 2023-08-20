@@ -1,6 +1,7 @@
 package ru.taustudio.duckview.manager.driver;
 
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -26,38 +27,50 @@ import javax.imageio.stream.ImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Supplier;
 
-@ConditionalOnProperty(value="driver",
-        havingValue = "safari_desktop",
-        matchIfMissing = false)
-@Component
+import static pazone.ashot.ShootingStrategies.cutting;
+import static pazone.ashot.ShootingStrategies.viewportPasting;
+
 public class SafariDesktopWorkerImpl implements Worker {
-    @Value("${operationSystem:linux}")
+
+    private final Supplier<WebDriver> driverSupplier;
+    private final int headerToCut;
+    private final int footerToCut;
+    private final int correctDesiredWidthOn;
+    private final int rightScrollToCut;
     String operationSystem;
-    @Value("${browser:firefox}")
-    String driverType;
     final Integer aShotTimeout = 1000;
 
-    @Autowired
     ScreenshotControlFeignClient feignClient;
 
+    public SafariDesktopWorkerImpl(String operationSystem, Supplier<WebDriver> driverSupplier, int headerToCut,
+                                        int footerToCut, int correctDesiredWidthOn, int rightScrollToCut,
+                                        ScreenshotControlFeignClient feignClient){
+        this.operationSystem = operationSystem;
+        this.driverSupplier = driverSupplier;
+        this.headerToCut = headerToCut;
+        this.footerToCut = footerToCut;
+        this.correctDesiredWidthOn = correctDesiredWidthOn;
+        this.rightScrollToCut = rightScrollToCut;
+        this.feignClient = feignClient;
+    }
+
     @PostConstruct
-    public void init(String agentName){
-        System.out.println("AGENT STARTED FOR: ");
-        System.out.println("operationSystem = " + operationSystem);
-        System.out.println("driverType = " + driverType);
+    public void init(){
+        System.out.println("AGENT STARTED FOR: " + operationSystem);
     }
 
     @RetrytOnFailure(2)
     public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
-        RemoteWebDriver driver = initDriver();
+        WebDriver driver = initDriver();
         driver.get(url);
         System.out.println("Setting size to " + width + " x " + height);
         driver.manage().window().setSize(new Dimension(width, height));
         System.out.println("Do screenshot ");
         Screenshot s = new AShot()
-                .shootingStrategy(ShootingStrategies.viewportNonRetina(ShootingStrategies.simple(),aShotTimeout,new FixedCutStrategy(1,0)))
+                .shootingStrategy(viewportPasting(ShootingStrategies.cutting(1,0), aShotTimeout,10))
                 .takeScreenshot(driver);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
@@ -66,49 +79,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
     }
 
-    private RemoteWebDriver initDriver() {
-        switch (operationSystem) {
-            case "linux": {
-                switch (driverType) {
-                    case "firefox": {
-                        System.setProperty("webdriver.gecko.driver", "linux/" + "geckodriver");
-                        return new FirefoxDriver();
-                    }
-
-                    case "chrome": {
-                        System.setProperty("webdriver.chrome.driver", "linux/" + "chromedriver");
-                        return new ChromeDriver();
-                    }
-                }
-            }
-            case "windows": {
-                switch (driverType) {
-                    case "edge": {
-                        System.setProperty("webdriver.edge.driver", "windows/" + "msedgedriver.exe");
-                        return new EdgeDriver();
-                    }
-                    case "firefox": {
-                        System.setProperty("webdriver.gecko.driver", "windows/" + "geckodriver.exe");
-                        return new FirefoxDriver();
-                    }
-                    case "chrome": {
-                        System.setProperty("webdriver.chrome.driver", "windows/" + "chromedriver.exe");
-                        return new ChromeDriver();
-                    }
-                }
-            }
-            case "macos":{
-                switch (driverType) {
-                    case "safari": {
-                        return new SafariDriver();
-                    }
-                    case "firefox" : {
-                        WebDriverManager.firefoxdriver().setup();
-                        return new FirefoxDriver();
-                    }
-                }
-            }
-        }
-        throw new RuntimeException("DW: cannot find suitable driver for browser: " + driverType + " and OS: " + operationSystem);
+    private WebDriver initDriver() {
+        return driverSupplier.get();
     }
 }
