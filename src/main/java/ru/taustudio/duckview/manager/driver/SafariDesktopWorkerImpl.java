@@ -34,6 +34,7 @@ import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 public class SafariDesktopWorkerImpl implements Worker {
 
+    public static final int MAX_TRY_ATTEMPTS = 2;
     private final Supplier<WebDriver> driverSupplier;
     private final int headerToCut;
     private final int footerToCut;
@@ -41,7 +42,7 @@ public class SafariDesktopWorkerImpl implements Worker {
     private final int rightScrollToCut;
     String operationSystem;
     final Integer aShotTimeout = 1000;
-
+    int tryCounter;
     ScreenshotControlFeignClient feignClient;
 
     public SafariDesktopWorkerImpl(String operationSystem, Supplier<WebDriver> driverSupplier, int headerToCut,
@@ -54,6 +55,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         this.correctDesiredWidthOn = correctDesiredWidthOn;
         this.rightScrollToCut = rightScrollToCut;
         this.feignClient = feignClient;
+        tryCounter = MAX_TRY_ATTEMPTS;
     }
 
     @PostConstruct
@@ -61,8 +63,22 @@ public class SafariDesktopWorkerImpl implements Worker {
         System.out.println("AGENT STARTED FOR: " + operationSystem);
     }
 
-    @RetrytOnFailure(2)
     public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
+        try {
+            if (tryCounter > 0){
+                tryScreenshot(jobUUID, url, width, height);
+                tryCounter = MAX_TRY_ATTEMPTS;
+            } else {
+                tryCounter = MAX_TRY_ATTEMPTS;
+            }
+        } catch (Throwable trw){
+            tryCounter--;
+            System.out.println("RETRYING, has " + tryCounter + " attempts");
+            tryScreenshot(jobUUID, url, width, height);
+        }
+    }
+
+    private void tryScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
         WebDriver driver = initDriver();
         driver.get(url);
