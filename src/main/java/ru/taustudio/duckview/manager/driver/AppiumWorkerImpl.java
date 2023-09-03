@@ -15,14 +15,9 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -44,27 +39,19 @@ import pazone.ashot.cutter.FixedCutStrategy;
 import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
-@Component
-@ConditionalOnProperty(value="driver",
-        havingValue = "appium",
-        matchIfMissing = false)
 @Slf4j
 public class AppiumWorkerImpl implements Worker {
 
 
     public static final String NATIVE_APP = "NATIVE_APP";
     public static final int INTERSECTION = 40;
-    @Value("${appium.port:4723}")
+    //@Value("${appium.port:4723}")
     String appiumPort;
-    @Value("${operationSystem:linux}")
     String operationSystem;
-    @Value("${browser:firefox}")
-    String driverType;
-    @Value("${device:iPhonePro}")
     Device device;
     final Integer aShotTimeout = 100;
 
-    private static IOSDriver driver;
+    private IOSDriver driver;
     Set<String> initialHandles;
 
     @Autowired
@@ -72,10 +59,13 @@ public class AppiumWorkerImpl implements Worker {
 
     private final AtomicLong lastCommandTime = new AtomicLong(Instant.now().getEpochSecond());
 
-    public AppiumWorkerImpl() {
+    public AppiumWorkerImpl(String appiumPort, String operationSystem, Device device, ScreenshotControlFeignClient feignClient) {
+        this.appiumPort = appiumPort;
+        this.operationSystem = operationSystem;
+        this.device = device;
+        this.feignClient = feignClient;
     }
 
-    @PostConstruct
     public void init() {
         try {
             initDriver();
@@ -130,8 +120,8 @@ public class AppiumWorkerImpl implements Worker {
         System.out.println("READY TO WORK");
     }
 
-    @PreDestroy
     public void destroy() {
+        System.out.println("Destroying worker for " + device.name());
         //close the app.
         if (driver != null)
             driver.quit();

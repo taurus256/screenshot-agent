@@ -2,6 +2,8 @@ package ru.taustudio.duckview.manager;
 
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,7 @@ import ru.taustudio.duckview.manager.agents.Agent;
 public class KafkaListener {
 
     private final List<Agent> agentList;
+    private boolean work = true;
 
     Thread thread = new Thread(){
         public void run(){
@@ -22,10 +25,18 @@ public class KafkaListener {
                 log.info("Initialization of {} - OK", a.getAgentName());
             }
             System.out.println("Start consume messages from Kafka");
-            while(true){
+            while(work){
                 for (Agent a: agentList){
-                    a.processMessages();
+                    try {
+                        a.processMessages();
+                    }catch(Throwable trw){
+                        System.out.println("Error when processing " + a.getAgentName());
+                    }
                 }
+            }
+            System.out.println("Shutting down agents");
+            for (Agent a: agentList){
+                a.destroy();
             }
         }
     };
@@ -33,5 +44,10 @@ public class KafkaListener {
     @PostConstruct
     public void init(){
         thread.start();
+    }
+
+    @PreDestroy
+    public void destroy(){
+        work = false;
     }
 }

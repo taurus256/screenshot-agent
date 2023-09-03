@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
+import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
 import ru.taustudio.duckview.manager.driver.Worker;
 import ru.taustudio.duckview.shared.JobDescription;
 
@@ -41,6 +42,7 @@ public abstract class Agent {
     this.worker = worker;
   }
 
+  @RetrytOnFailure(3)
   public void init(){
     initAgent();
     initConsumer();
@@ -48,6 +50,10 @@ public abstract class Agent {
   }
 
   abstract protected void initAgent();
+
+  public void destroy(){
+    System.out.println("Shutdown agent: " + getAgentName());
+  };
 
   protected void initConsumer(){
     Properties props = new Properties();
@@ -71,13 +77,18 @@ public abstract class Agent {
   };
 
   public void processMessages(){
-    ConsumerRecords<String, JobDescription> records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
-    for (ConsumerRecord<String, JobDescription> record : records) {
-      System.out.println("record = " + record);
+    try {
+      ConsumerRecords<String, JobDescription> records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
+      for (ConsumerRecord<String, JobDescription> record : records) {
+        System.out.println("record = " + record);
 
-      processRecord(record.value());
+        processRecord(record.value());
+      }
+      consumer.commitSync();
+    } catch (Throwable trw){
+      System.out.println("ERROR: " + trw.getMessage());
+      trw.printStackTrace();
     }
-    consumer.commitSync();
   }
 
   protected void processRecord(JobDescription job){
@@ -90,5 +101,9 @@ public abstract class Agent {
 
   public String getAgentName() {
     return agentName;
+  }
+
+  public Worker getWorker() {
+    return worker;
   }
 }
