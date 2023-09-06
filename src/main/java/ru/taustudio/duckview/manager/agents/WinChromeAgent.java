@@ -19,6 +19,7 @@ public class WinChromeAgent extends Agent {
 
   @Override
   protected void initAgent() {
+    System.out.println("INIT DRIVER FOR " + getAgentName());
     WebDriverManager.chromedriver().setup();
   }
 }
