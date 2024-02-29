@@ -1,5 +1,6 @@
 package ru.taustudio.duckview.manager.agents;
 
+import com.netflix.discovery.EurekaClient;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -10,7 +11,7 @@ import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 @ConditionalOnExpression("'${agents}'.contains(\"LIN_FIREFOX\")")
 @Component
 public class LinFirefoxAgent extends Agent {
-  public LinFirefoxAgent(ScreenshotControlFeignClient feignClient){
+  public LinFirefoxAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient){
     super("LIN_FIREFOX", new SeleniumScreenshotWorkerImpl(
       "linux",
       () -> {
@@ -18,7 +19,7 @@ public class LinFirefoxAgent extends Agent {
       options.addPreference("dom.disable_scrollbars", true);
       return WebDriverManager.firefoxdriver().capabilities(options).create();
       }, 0, 0, 0, 0,
-        feignClient));
+        feignClient, eurekaClient));
   }
 
   @Override

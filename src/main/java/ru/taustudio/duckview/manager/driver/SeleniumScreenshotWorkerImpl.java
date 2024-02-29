@@ -1,10 +1,15 @@
 package ru.taustudio.duckview.manager.driver;
 
 import java.util.function.Supplier;
+
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
@@ -30,17 +35,20 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
 
     final Integer aShotTimeout = 1000;
 
+    private final static String TEST_PAGE = "static/test_page.html";
 
     private Supplier<WebDriver> driverSupplier;
+    private int diff = 0;
     private int headerToCut;
     private int footerToCut;
     private int rightScrollToCut;
     private int correctDesiredWidthOn;
     private ScreenshotControlFeignClient feignClient;
+    private final EurekaClient eurekaClient;
 
     public SeleniumScreenshotWorkerImpl(String operationSystem, Supplier<WebDriver> driverSupplier, int headerToCut,
         int footerToCut, int correctDesiredWidthOn, int rightScrollToCut,
-        ScreenshotControlFeignClient feignClient){
+        ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient) {
         this.operationSystem = operationSystem;
         this.driverSupplier = driverSupplier;
         this.headerToCut = headerToCut;
@@ -48,22 +56,48 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
         this.correctDesiredWidthOn = correctDesiredWidthOn;
         this.rightScrollToCut = rightScrollToCut;
         this.feignClient = feignClient;
+        this.eurekaClient = eurekaClient;
     }
 
     @PostConstruct
     public void init(){
         System.out.println("WORKER STARTED");
+        setScreenDiff();
+    }
+
+
+    private void setScreenDiff(){
+        int width = 1024;
+        int height = 768;
+
+        WebDriver driver = initDriver();
+        driver.manage().window().setSize(new Dimension(width, height ));
+
+        Dimension win_size = driver.manage().window().getSize();
+        driver.get(getControlAppUrl() + TEST_PAGE);
+
+        WebElement html = driver.findElement(By.tagName("html"));
+        int inner_width = html.getRect().getWidth();
+
+        this.diff = width - inner_width;
+        driver.quit();
+    }
+
+    private String getControlAppUrl(){
+        for (Application app : eurekaClient.getApplications().getRegisteredApplications()) {
+            if ("CONTROL-APP".equals(app.getName())) {
+                return app.getInstances().get(0).getHomePageUrl();
+            }
+        }
+        return null;
     }
 
     public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
         WebDriver driver = initDriver();
-        driver.manage().window().setSize(new Dimension(width + rightScrollToCut + correctDesiredWidthOn, height + rightScrollToCut + correctDesiredWidthOn));
+        System.out.println("DIFF = " + diff);
+        driver.manage().window().setSize(new Dimension(width + diff, height ));
         driver.get(url);
-
-//        Dimension win_size = driver.manage().window().getSize();
-//        WebElement html = driver.findElement(By.tagName("html"));
-//        int inner_width = Integer.parseInt(html.getAttribute("clientWidth"));
 //        int inner_height = Integer.parseInt(html.getAttribute("clientHeight"));
 //
 //// set the inner size of the window to 400 x 400 (scrollbar excluded)
@@ -72,7 +106,7 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
 //            win_size.height + (height - inner_height)
 //        ));
 
-        System.out.println("Setting size to " + driver.manage().window().getSize().getWidth() + " x " + driver.manage().window().getSize().getHeight());
+
 
         System.out.println("Do screenshot ");
         Screenshot s = new AShot()
@@ -84,7 +118,7 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
 //            .takeScreenshot(driver);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
-        ImageIO.write(s.getImage().getSubimage(0, 0, s.getImage().getWidth() - rightScrollToCut, s.getImage().getHeight()), "PNG", is);
+        ImageIO.write(s.getImage().getSubimage(0, 0, width, s.getImage().getHeight()), "PNG", is);
         driver.quit();
         feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
     }
