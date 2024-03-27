@@ -1,5 +1,6 @@
 package ru.taustudio.duckview.manager.driver;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.netflix.discovery.EurekaClient;
@@ -13,6 +14,7 @@ import org.springframework.core.io.ByteArrayResource;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
+import ru.taustudio.duckview.manager.RenderException;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
 import javax.annotation.PostConstruct;
@@ -70,7 +72,6 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
         WebDriver driver = initDriver();
         driver.manage().window().setSize(new Dimension(width, height ));
 
-        Dimension win_size = driver.manage().window().getSize();
         driver.get(getControlAppUrl() + TEST_PAGE);
 
         WebElement html = driver.findElement(By.tagName("html"));
@@ -89,24 +90,32 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
         return null;
     }
 
-    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
+    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws RenderException{
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
-        feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
-        WebDriver driver = initDriver();
-        System.out.println("DIFF = " + diff);
-        driver.manage().window().setSize(new Dimension(width + diff, height ));
-        driver.get(url);
 
-        System.out.println("Do screenshot ");
-        Screenshot s = new AShot()
+        try(ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
+            WebDriver driver = initDriver();
+            System.out.println("DIFF = " + diff);
+            driver.manage().window().setSize(new Dimension(width + diff, height));
+            driver.get(url);
+
+            System.out.println("Do screenshot ");
+            Screenshot s = new AShot()
                 .shootingStrategy(ShootingStrategies.viewportPasting(aShotTimeout))
                 .takeScreenshot(driver);
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
-        ImageIO.write(s.getImage().getSubimage(0, 0, width, s.getImage().getHeight()), "PNG", is);
-        driver.quit();
-        feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+            ImageOutputStream is = new FileCacheImageOutputStream(os,
+                new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
+            ImageIO.write(s.getImage().getSubimage(0, 0, width, s.getImage().getHeight()), "PNG",
+                is);
+            driver.quit();
+            feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+        } catch (Throwable err){
+            feignClient.changeJobStatus(jobUUID, JobStatus.ERROR, Map.of("description", err.getMessage()));
+            System.out.println("ERROR: " + err.getMessage());
+            throw new RenderException(err.getMessage());
+        }
     }
 
     WebDriver initDriver() {

@@ -1,5 +1,6 @@
 package ru.taustudio.duckview.manager.screenshots;
 
+import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,4 +15,7 @@ public interface ScreenshotControlFeignClient {
 
 	@PutMapping("/{jobUUID}/status/{jobStatus}")
 	public void changeJobStatus(@PathVariable String jobUUID, @PathVariable JobStatus jobStatus);
+	@PutMapping("/{jobUUID}/status/{jobStatus}")
+	public void changeJobStatus(@PathVariable String jobUUID, @PathVariable JobStatus jobStatus,
+			@RequestBody Map<String, String> description);
 }
