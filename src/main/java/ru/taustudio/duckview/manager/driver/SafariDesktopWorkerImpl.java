@@ -6,23 +6,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariDriver;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Component;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
-import pazone.ashot.cutter.FixedCutStrategy;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
-import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -34,7 +22,6 @@ import java.io.IOException;
 import java.util.function.Supplier;
 import ru.taustudio.duckview.shared.JobStatus;
 
-import static pazone.ashot.ShootingStrategies.cutting;
 import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 public class SafariDesktopWorkerImpl implements Worker {
@@ -100,7 +87,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         return null;
     }
 
-    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
+    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) {
         try {
             if (tryCounter > 0){
                 tryScreenshot(jobUUID, url, width, height);
@@ -116,7 +103,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         }
     }
 
-    private void tryScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException, InterruptedException {
+    private void tryScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException {
         System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
         feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
         WebDriver driver = initDriver();

@@ -1,8 +1,6 @@
 package ru.taustudio.duckview.manager.agents;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -11,15 +9,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
-import ru.taustudio.duckview.manager.RenderException;
 import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
 import ru.taustudio.duckview.manager.driver.Worker;
 import ru.taustudio.duckview.shared.JobDescription;
@@ -65,7 +60,7 @@ public abstract class Agent {
 
   public void destroy(){
     System.out.println("Shutdown agent: " + getAgentName());
-  };
+  }
 
   protected void initConsumer(){
     Properties props = new Properties();
@@ -123,7 +118,7 @@ public abstract class Agent {
         System.out.println("Error where attempting to stop the browser process in agent " + getAgentName());
       }
     }
-  };
+  }
 
   public String getAgentName() {
     return agentName;
