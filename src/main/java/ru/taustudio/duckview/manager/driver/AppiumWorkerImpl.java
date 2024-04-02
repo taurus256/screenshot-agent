@@ -7,7 +7,9 @@ import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -36,16 +38,16 @@ import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategy;
 import pazone.ashot.cutter.CutStrategy;
 import pazone.ashot.cutter.FixedCutStrategy;
+import ru.taustudio.duckview.manager.RenderException;
 import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
+import ru.taustudio.duckview.shared.JobStatus;
 
 @Slf4j
 public class AppiumWorkerImpl implements Worker {
 
-
     public static final String NATIVE_APP = "NATIVE_APP";
     public static final int INTERSECTION = 40;
-    //@Value("${appium.port:4723}")
     String appiumPort;
     String operationSystem;
     Device device;
@@ -128,22 +130,31 @@ public class AppiumWorkerImpl implements Worker {
     }
 
     @Override
-    public void doScreenshot(String jobUUID, String url, Integer width, Integer height) throws Exception {
+    public void doScreenshot(String jobUUID, String url, Integer width, Integer height){
         lastCommandTime.set(Instant.now().getEpochSecond());
+        try {
+            feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
+            System.out.println(
+                "Preparing render screenshot from url = " + url + ", save to " + System.getProperty(
+                    "user.dir"));
+            ((WebDriver) driver).get(url);
+            System.out.println("Do screenshot ");
 
-        System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
-        ((WebDriver)driver).get(url);
-        System.out.println("Do screenshot ");
-
-        Screenshot s = new AShot()
+            Screenshot s = new AShot()
                 .shootingStrategy(getStrategyForDevice(device))
                 .takeScreenshot(driver);
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageOutputStream is = new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
-        ImageIO.write(s.getImage(), "PNG", is);
-        feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
-        closePrivateTab();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageOutputStream is = new FileCacheImageOutputStream(os,
+                new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
+            ImageIO.write(s.getImage(), "PNG", is);
+            feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+            closePrivateTab();
+        } catch (Exception ex){
+            feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
+                Map.of("description", StringUtils.defaultString(ex.getMessage())));
+            System.out.println("ERROR: " + ex.getMessage());
+        }
     }
 
     private ShootingStrategy getStrategyForDevice(Device device) {

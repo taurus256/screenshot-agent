@@ -2,6 +2,7 @@ package ru.taustudio.duckview.manager.driver;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -94,7 +95,9 @@ public class SafariDesktopWorkerImpl implements Worker {
                 tryCounter = MAX_TRY_ATTEMPTS;
             } else {
                 tryCounter = MAX_TRY_ATTEMPTS;
-                feignClient.changeJobStatus(jobUUID, JobStatus.ERROR);
+                feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
+                    Map.of("description", "ERROR: max attempts count exceed!"));
+                System.out.println("ERROR: max attempts count exceed!" );
             }
         } catch (Throwable trw){
             tryCounter--;

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -111,9 +112,9 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
             driver.quit();
             feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
         } catch (Throwable err){
-            feignClient.changeJobStatus(jobUUID, JobStatus.ERROR, Map.of("description", err.getMessage()));
+            feignClient.changeJobStatus(jobUUID, JobStatus.ERROR, Map.of("description",
+                StringUtils.defaultString(err.getMessage())));
             System.out.println("ERROR: " + err.getMessage());
-            throw new RenderException(err.getMessage());
         }
     }
 
