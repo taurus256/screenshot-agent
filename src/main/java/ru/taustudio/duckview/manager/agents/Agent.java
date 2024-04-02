@@ -133,9 +133,5 @@ public abstract class Agent {
     return worker;
   }
 
-  protected void closeBrowser() throws IOException {
-    Process process = Runtime.getRuntime().exec("taskkill /f /IM msedge.exe");
-    new BufferedReader(new InputStreamReader(process.getInputStream())).lines().forEach(
-        System.out::println);
-  }
+  protected abstract void closeBrowser() throws IOException;
 }

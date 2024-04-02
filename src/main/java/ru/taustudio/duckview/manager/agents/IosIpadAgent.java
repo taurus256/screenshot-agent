@@ -1,6 +1,7 @@
 package ru.taustudio.duckview.manager.agents;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,5 +34,10 @@ public class IosIpadAgent extends Agent {
   @Override
   public void destroy(){
     getWorker().destroy();
+  }
+
+  @Override
+  protected void closeBrowser() throws IOException {
+    System.out.println("Close operation for " + getAgentName() + " has not implemented");
   }
 }

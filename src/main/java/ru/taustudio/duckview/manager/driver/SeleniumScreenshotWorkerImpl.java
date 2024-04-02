@@ -23,7 +23,6 @@ import javax.imageio.stream.FileCacheImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import ru.taustudio.duckview.shared.JobStatus;
 
 @ConditionalOnProperty(value="driver",
