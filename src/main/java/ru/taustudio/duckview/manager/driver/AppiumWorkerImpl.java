@@ -179,7 +179,7 @@ public class AppiumWorkerImpl implements Worker {
 
     //iPhone Pro Max
     private ShootingStrategy iPhoneProMaxShootingStrategy(){
-        return viewportRetinaIntersect(500, new FixedCutStrategy(58,122), 3f);
+        return viewportRetinaIntersect(500, new FixedCutStrategy(59,122), 3f);
     }
 
     public void enterPrivateMode() throws InterruptedException {
