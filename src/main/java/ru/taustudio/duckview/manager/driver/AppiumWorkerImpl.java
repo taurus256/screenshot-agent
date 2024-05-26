@@ -38,7 +38,6 @@ import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategy;
 import pazone.ashot.cutter.CutStrategy;
 import pazone.ashot.cutter.FixedCutStrategy;
-import ru.taustudio.duckview.manager.RenderException;
 import ru.taustudio.duckview.manager.aop.RetrytOnFailure;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 import ru.taustudio.duckview.shared.JobStatus;
@@ -108,7 +107,7 @@ public class AppiumWorkerImpl implements Worker {
         desiredCapabilities.setCapability("wdaStartupRetryInterval", "20000");
         // время, в течение которого держится сессия
         desiredCapabilities.setCapability("newCommandTimeout", "3600");
-        URL url = null;
+        URL url;
         try {
             url = new URL("http://127.0.0.1:".concat(appiumPort));
         } catch (MalformedURLException e) {
