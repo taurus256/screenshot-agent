@@ -110,12 +110,12 @@ public abstract class Agent {
       future.get(60, TimeUnit.SECONDS);
       System.out.println("future returned for " + getAgentName());
     } catch (TimeoutException | ExecutionException | InterruptedException  e) {
-      System.out.println("Error where rendering in agent " + getAgentName());
+      System.out.println("Error while rendering in agent " + getAgentName());
       System.out.println(e.getMessage());
       try {
         closeBrowser();
       } catch (IOException ex) {
-        System.out.println("Error where attempting to stop the browser process in agent " + getAgentName());
+        System.out.println("Error while attempting to stop the browser process in agent " + getAgentName());
       }
     }
   }

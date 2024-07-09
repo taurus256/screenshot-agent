@@ -115,6 +115,7 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
             feignClient.changeJobStatus(jobUUID, JobStatus.ERROR, Map.of("description",
                 StringUtils.defaultString(err.getMessage())));
             System.out.println("ERROR: " + err.getMessage());
+            throw new RenderException(err.getMessage());
         }
     }
 

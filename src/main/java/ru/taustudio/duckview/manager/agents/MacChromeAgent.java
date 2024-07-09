@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 import ru.taustudio.duckview.manager.driver.SeleniumScreenshotWorkerImpl;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
-@ConditionalOnExpression("'${agents}'.contains(\"WIN_CHROME\")")
+@ConditionalOnExpression("'${agents}'.contains(\"MAC_CHROME\")")
 @Component
-public class WinChromeAgent extends Agent {
-  public WinChromeAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient){
-    super("WIN_CHROME", new SeleniumScreenshotWorkerImpl(
-      "windows",
+public class MacChromeAgent extends Agent {
+  public MacChromeAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient){
+    super("MAC_CHROME", new SeleniumScreenshotWorkerImpl(
+      "mac",
       () -> WebDriverManager.chromedriver().create(),
         0, 0, 16, 16,
         feignClient, eurekaClient));
@@ -29,7 +29,7 @@ public class WinChromeAgent extends Agent {
 
   @Override
   protected void closeBrowser() throws IOException {
-    Process process = Runtime.getRuntime().exec("taskkill /f /IM chrome.exe");
+    Process process = Runtime.getRuntime().exec("killall -9 \"Google Chrome\"");
     new BufferedReader(new InputStreamReader(process.getInputStream())).lines().forEach(
         System.out::println);
   }
