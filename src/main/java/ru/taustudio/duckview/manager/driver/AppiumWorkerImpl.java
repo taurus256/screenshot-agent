@@ -98,10 +98,13 @@ public class AppiumWorkerImpl implements Worker {
         System.out.println("INITIALIZATION...");
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
         desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
-        desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "16.2");
+        desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "16.4");
         desiredCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest");
         desiredCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Safari");
         desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, device.getSystemName());
+        desiredCapabilities.setCapability("appium:usePreinstalledWDA", true);
+        desiredCapabilities.setCapability("appium:webviewConnectTimeout", 120000);
+
         desiredCapabilities.setCapability("wdaStartupRetries", "10");
         desiredCapabilities.setCapability("iosInstallPause", "30000");
         desiredCapabilities.setCapability("wdaStartupRetryInterval", "20000");
@@ -212,12 +215,26 @@ public class AppiumWorkerImpl implements Worker {
     private void setNewTabContext(Set<String> newHandles){
         System.out.println("setting new context, available:" + driver.getContextHandles());
         System.out.println("Current:" + driver.getContext());
-        newHandles.removeAll(initialHandles);
-        if (newHandles.size() == 1) {
-            System.out.println("SET = " + newHandles.stream().findAny().get());
-            driver.context(newHandles.stream().findAny().get());
-        }else
-            throw new IllegalArgumentException();
+        System.out.println("Initial handles:" + initialHandles);
+        System.out.println("New handles:" + initialHandles);
+        final String newContextName;
+        if (newHandles.size() != initialHandles.size()) {
+            System.out.println("New web context appears, switching to it");
+            newHandles.removeAll(initialHandles);
+            if (newHandles.size() > 1){
+                System.out.println("Too many web contexts, cannot select proper between them");
+                throw new IllegalArgumentException();
+            }
+            newContextName = newHandles.stream().findAny().orElseThrow(
+                () -> new IllegalArgumentException(
+                    "Try switching to new context, but no one was detected"));
+        } else {
+            System.out.println("No new web context detected, try switching to existing one");
+            newContextName = newHandles.stream().filter((ctxName) -> !"NATIVE_APP".equals(ctxName)).findAny().orElseThrow(
+                () -> new IllegalArgumentException(
+                    "Try switching to existing context, but no one was detected"));
+        }
+        driver.context(newContextName);
     }
 
     // переопределенные

@@ -23,7 +23,8 @@
 `xcrun --sdk iphonesimulator --show-sdk-version` \
 должен вернуть номер версии iOs
 
-## Установка WDA на эмулятор
+## Настройки эмулятора
+### Установка WDA
 Исходник:
 https://github.com/appium/WebDriverAgent \
 Инструкция:
@@ -31,6 +32,9 @@ https://appium.github.io/appium-xcuitest-driver/7.22/guides/wda-custom-server/
 
 Сейчас установленный WDA требуется, за это отвечает параметр в capabilites \
 `appium:usePreinstalledWDA`
+
+### Отключение запросов местоположения в Safari
+Settings -> Safari -> Location -> Deny
 
 ## Capabilites для ручного подключения в Appium Inspector
 Если понадобится определить пути к элементам браузера: \
@@ -45,3 +49,4 @@ https://appium.github.io/appium-xcuitest-driver/7.22/guides/wda-custom-server/
 }`
 
 (//XCUIElementTypeButton[@name="Close"])[2]
+

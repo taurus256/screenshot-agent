@@ -25,6 +25,8 @@ import ru.taustudio.duckview.shared.JobDescription;
  * initConsumer - инициализирует консьюмер Кафки. через который агент получает задания
  * initWorker - инициализирует обработчик (класс, выполняющий собственно обработку заданий с помощью агента)*/
 public abstract class Agent {
+
+  public static final int WAIT_FOR_RESULT_TIMEOUT = 120;
   protected KafkaConsumer<String,JobDescription> consumer;
 
 
@@ -107,11 +109,11 @@ public abstract class Agent {
 
     try {
      var future = executorService.submit( workerCall);
-      future.get(60, TimeUnit.SECONDS);
+      future.get(WAIT_FOR_RESULT_TIMEOUT, TimeUnit.SECONDS);
       System.out.println("future returned for " + getAgentName());
     } catch (TimeoutException | ExecutionException | InterruptedException  e) {
-      System.out.println("Error while rendering in agent " + getAgentName());
-      System.out.println(e.getMessage());
+      System.out.println("Error rendering in agent " + getAgentName());
+      e.printStackTrace();
       try {
         closeBrowser();
       } catch (IOException ex) {
