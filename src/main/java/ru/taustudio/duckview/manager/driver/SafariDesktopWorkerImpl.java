@@ -11,7 +11,6 @@ import org.springframework.core.io.ByteArrayResource;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
-import ru.taustudio.duckview.manager.SafariCuttingDecorator;
 import ru.taustudio.duckview.manager.SafariViewportPastingDecorator;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
@@ -26,7 +25,6 @@ import java.util.function.Supplier;
 import ru.taustudio.duckview.shared.JobStatus;
 
 import static pazone.ashot.ShootingStrategies.simple;
-import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 public class SafariDesktopWorkerImpl implements Worker {
 

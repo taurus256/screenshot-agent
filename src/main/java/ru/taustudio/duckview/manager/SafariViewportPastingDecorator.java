@@ -64,12 +64,14 @@ public class SafariViewportPastingDecorator extends ShootingDecorator {
             if (n == 0) {
                 scrollVertically(js, shootingArea.y + viewportHeight * n );
             } else {
-                scrollVertically(js, shootingArea.y + viewportHeight * n - 50);
+                scrollVertically(js, shootingArea.y + viewportHeight * n + (n == 1 ? 0 : 1));
+                waitForScrolling();
+                scrollVertically(js, getCurrentScrollY(js) - 1);
             }
             waitForScrolling();
 //            BufferedImage part = getShootingStrategy().getScreenshot(wd);
             BufferedImage part = n == 0 ? withTopLine.getScreenshot(wd) : withoutTopLine.getScreenshot(wd);
-            graphics.drawImage(part, 0, getCurrentScrollY(js) - shootingArea.y, null);
+            graphics.drawImage(part, 0, getCurrentScrollY(js) - shootingArea.y + (n == 0 ? 0 : 1), null);
         }
 
         graphics.dispose();
