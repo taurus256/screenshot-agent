@@ -11,6 +11,8 @@ import org.springframework.core.io.ByteArrayResource;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
+import ru.taustudio.duckview.manager.SafariCuttingDecorator;
+import ru.taustudio.duckview.manager.SafariViewportPastingDecorator;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.util.function.Supplier;
 import ru.taustudio.duckview.shared.JobStatus;
 
+import static pazone.ashot.ShootingStrategies.simple;
 import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 public class SafariDesktopWorkerImpl implements Worker {
@@ -115,11 +118,13 @@ public class SafariDesktopWorkerImpl implements Worker {
         driver.manage().window().setSize(new Dimension(width, height));
         System.out.println("Do screenshot ");
         Screenshot s = new AShot()
-                .shootingStrategy(viewportPasting(ShootingStrategies.cutting(1,0), aShotTimeout,10))
+                .shootingStrategy(new SafariViewportPastingDecorator(simple())
+                    .withScrollTimeout(aShotTimeout)
+                    .withIntersection(15))
                 .takeScreenshot(driver);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
-        ImageIO.write(s.getImage(), "PNG", is);
+        ImageIO.write(s.getImage().getSubimage(0, 0, width, s.getImage().getHeight()), "PNG", is);
         driver.quit();
         feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
     }
