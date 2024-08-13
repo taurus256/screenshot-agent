@@ -151,11 +151,12 @@ public class AppiumWorkerImpl implements Worker {
                 new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
             ImageIO.write(s.getImage(), "PNG", is);
             feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
-            closePrivateTab();
         } catch (Exception ex){
             feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
                 Map.of("description", StringUtils.defaultString(ex.getMessage())));
             System.out.println("ERROR: " + ex.getMessage());
+        } finally {
+            closePrivateTab();
         }
     }
 
@@ -192,7 +193,8 @@ public class AppiumWorkerImpl implements Worker {
         clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
     }
 
-    public void closePrivateTab() throws InterruptedException {
+    public void closePrivateTab() {
+        try {
         System.out.println("Contexts:" + driver.getContextHandles());
         System.out.println("Current:" + driver.getContext());
         driver.context(NATIVE_APP).switchTo();
@@ -200,10 +202,14 @@ public class AppiumWorkerImpl implements Worker {
 //        if (driver.findElements(By.xpath("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]")).size() > 0){
 //            clickElement("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]");
 //        }
+
         clickElement("//XCUIElementTypeButton[@name=\"TabOverviewButton\"]");
         clickElement("//XCUIElementTypeButton[@name=\"Close\"]");
         clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
         setNewTabContext(driver.getContextHandles());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void clickElement(String elementPath ) throws InterruptedException {
