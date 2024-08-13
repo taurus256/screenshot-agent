@@ -50,7 +50,6 @@ public class AppiumWorkerImpl implements Worker {
     String appiumPort;
     String operationSystem;
     Device device;
-    final Integer aShotTimeout = 100;
 
     private IOSDriver driver;
     Set<String> initialHandles;

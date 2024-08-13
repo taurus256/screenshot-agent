@@ -36,7 +36,7 @@ public class SafariDesktopWorkerImpl implements Worker {
     private final int correctDesiredWidthOn;
     private final int rightScrollToCut;
     String operationSystem;
-    final Integer aShotTimeout = 1000;
+    final Integer aShotTimeout = 3000;
     private final static String TEST_PAGE = "static/test_page.html";
     private int diff = 0;
     int tryCounter;
