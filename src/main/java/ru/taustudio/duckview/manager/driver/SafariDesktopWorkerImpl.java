@@ -14,7 +14,7 @@ import pazone.ashot.ShootingStrategies;
 import ru.taustudio.duckview.manager.SafariViewportPastingDecorator;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -37,7 +37,7 @@ public class SafariDesktopWorkerImpl implements Worker {
     private final int rightScrollToCut;
     String operationSystem;
     final Integer aShotTimeout = 3000;
-    private final static String TEST_PAGE = "static/test_page.html";
+    private static String TEST_PAGE = "static/test_page.html";
     private int diff = 0;
     int tryCounter;
     ScreenshotControlFeignClient feignClient;
