@@ -1,8 +1,8 @@
 package ru.taustudio.duckview.manager;
 
 import java.util.List;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +18,7 @@ public class KafkaListener {
     private boolean work = true;
 
     Thread thread = new Thread(){
+        @Override
         public void run(){
             for (Agent a: agentList){
                 log.info("Start initialization of {}", a.getAgentName());

@@ -10,11 +10,10 @@ import org.openqa.selenium.WebElement;
 import org.springframework.core.io.ByteArrayResource;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
-import pazone.ashot.ShootingStrategies;
 import ru.taustudio.duckview.manager.SafariViewportPastingDecorator;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;

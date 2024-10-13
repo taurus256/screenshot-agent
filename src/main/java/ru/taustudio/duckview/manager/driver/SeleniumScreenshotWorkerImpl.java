@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
