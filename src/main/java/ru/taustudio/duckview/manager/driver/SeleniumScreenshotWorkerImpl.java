@@ -34,7 +34,7 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
 
     final Integer aShotTimeout = 3000;
 
-    private final static String TEST_PAGE = "static/test_page.html";
+    private static String TEST_PAGE = "static/test_page.html";
 
     private final Supplier<WebDriver> driverSupplier;
     private int diff = 0;
@@ -99,6 +99,7 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
             System.out.println("DIFF = " + diff);
             driver.manage().window().setSize(new Dimension(width + diff, height));
             driver.get(url);
+            Thread.sleep(aShotTimeout);
 
             System.out.println("Do screenshot ");
             Screenshot s = new AShot()

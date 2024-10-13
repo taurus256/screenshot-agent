@@ -5,6 +5,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import ru.taustudio.duckview.manager.driver.SeleniumScreenshotWorkerImpl;
@@ -13,12 +15,17 @@ import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 @ConditionalOnExpression("'${agents}'.contains(\"MAC_CHROME\")")
 @Component
 public class MacChromeAgent extends Agent {
-  public MacChromeAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient){
+  public MacChromeAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient) {
     super("MAC_CHROME", new SeleniumScreenshotWorkerImpl(
-      "mac",
-      () -> WebDriverManager.chromedriver().create(),
-        0, 0, 16, 16,
-        feignClient, eurekaClient));
+            "mac",
+            () -> {
+              ChromeOptions chromeOptions = new ChromeOptions();
+              chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+              return WebDriverManager.chromedriver().capabilities(chromeOptions).create();
+            },
+            0, 0, 16, 16,
+            feignClient, eurekaClient
+    ));
   }
 
   @Override

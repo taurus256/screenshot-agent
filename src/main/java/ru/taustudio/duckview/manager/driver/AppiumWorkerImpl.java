@@ -123,11 +123,13 @@ public class AppiumWorkerImpl implements Worker {
         System.out.println("READY TO WORK");
     }
 
+    @Override
     public void destroy() {
         System.out.println("Destroying worker for " + device.name());
         //close the app.
-        if (driver != null)
+        if (driver != null) {
             driver.quit();
+        }
     }
 
     @Override
@@ -149,7 +151,9 @@ public class AppiumWorkerImpl implements Worker {
             ImageOutputStream is = new FileCacheImageOutputStream(os,
                 new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
             ImageIO.write(s.getImage(), "PNG", is);
+            System.out.println("Screenshot was taken");
             feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+            System.out.println("Screenshot was sent");
         } catch (Exception ex){
             feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
                 Map.of("description", StringUtils.defaultString(ex.getMessage())));
@@ -194,10 +198,15 @@ public class AppiumWorkerImpl implements Worker {
 
     public void closePrivateTab() {
         try {
+        printContext();
+        System.out.println("Start closing private tab. Prepare to set native context");
         System.out.println("Contexts:" + driver.getContextHandles());
         System.out.println("Current:" + driver.getContext());
-        driver.context(NATIVE_APP).switchTo();
-        System.out.println("New current:" + driver.getContext());
+        if (!"NATIVE_APP".equals(driver.getContext())) {
+            driver.context(NATIVE_APP).switchTo();
+        }
+
+        System.out.println("New current context is:" + driver.getContext());
 //        if (driver.findElements(By.xpath("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]")).size() > 0){
 //            clickElement("//XCUIElementTypeOther[@name=\"CapsuleViewController\"]/XCUIElementTypeOther[2]");
 //        }
@@ -205,7 +214,10 @@ public class AppiumWorkerImpl implements Worker {
         clickElement("//XCUIElementTypeButton[@name=\"TabOverviewButton\"]");
         clickElement("//XCUIElementTypeButton[@name=\"Close\"]");
         clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
+        System.out.println("Tab was closed. Try to set browser context");
         setNewTabContext(driver.getContextHandles());
+        System.out.println("Browser context has been set");
+        printContext();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -218,10 +230,10 @@ public class AppiumWorkerImpl implements Worker {
     }
 
     private void setNewTabContext(Set<String> newHandles){
-        System.out.println("setting new context, available:" + driver.getContextHandles());
+        printContext();
+        System.out.println("Start setting new browser context, available:" + driver.getContextHandles());
         System.out.println("Current:" + driver.getContext());
         System.out.println("Initial handles:" + initialHandles);
-        System.out.println("New handles:" + initialHandles);
         final String newContextName;
         if (newHandles.size() != initialHandles.size()) {
             System.out.println("New web context appears, switching to it");
@@ -240,6 +252,11 @@ public class AppiumWorkerImpl implements Worker {
                     "Try switching to existing context, but no one was detected"));
         }
         driver.context(newContextName);
+        printContext();
+    }
+
+    private void printContext() {
+        System.out.println("Current context is " + driver.getContext());
     }
 
     // переопределенные
