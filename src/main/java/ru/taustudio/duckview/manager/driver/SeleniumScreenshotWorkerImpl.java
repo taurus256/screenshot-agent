@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
@@ -18,7 +19,6 @@ import pazone.ashot.ShootingStrategies;
 import ru.taustudio.duckview.manager.RenderException;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
-import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
