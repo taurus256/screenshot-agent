@@ -5,6 +5,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import ru.taustudio.duckview.manager.driver.SeleniumScreenshotWorkerImpl;
@@ -16,7 +17,11 @@ public class WinChromeAgent extends Agent {
   public WinChromeAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient){
     super("WIN_CHROME", new SeleniumScreenshotWorkerImpl(
       "windows",
-      () -> WebDriverManager.chromedriver().create(),
+            () -> {
+              ChromeOptions chromeOptions = new ChromeOptions();
+              chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+              return WebDriverManager.chromedriver().capabilities(chromeOptions).create();
+            },
         0, 0, 16, 16,
         feignClient, eurekaClient));
   }

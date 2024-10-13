@@ -5,6 +5,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import ru.taustudio.duckview.manager.driver.SeleniumScreenshotWorkerImpl;
@@ -16,7 +17,12 @@ public class WinEdgeAgent extends Agent {
   public WinEdgeAgent(ScreenshotControlFeignClient feignClient, EurekaClient eurekaClient){
     super("WIN_EDGE", new SeleniumScreenshotWorkerImpl(
       "windows",
-      () -> WebDriverManager.edgedriver().create(),
+            () -> {
+              EdgeOptions edgeOptions = new EdgeOptions();
+              edgeOptions.setExperimentalOption("useAutomationExtension", false);
+              edgeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation", "enable-logging"});
+              return WebDriverManager.edgedriver().capabilities(edgeOptions).create();
+            },
         0, 0, 0, 15,
         feignClient, eurekaClient));
   }
