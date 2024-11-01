@@ -112,8 +112,8 @@ public class SafariDesktopWorkerImpl implements Worker {
         feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
         WebDriver driver = initDriver();
         driver.get(url);
-        System.out.println("Setting size to " + width + " x " + height);
-        driver.manage().window().setSize(new Dimension(width, height));
+        System.out.println("Setting size to " + width + diff + " x " + height);
+        driver.manage().window().setSize(new Dimension(width + diff, height));
         System.out.println("Do screenshot ");
         Screenshot s = new AShot()
                 .shootingStrategy(new SafariViewportPastingDecorator(simple())
