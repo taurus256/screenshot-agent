@@ -5,17 +5,17 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.2.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ru.taustudio.duckview</groupId>
 	<artifactId>SpringSeleniumAgent</artifactId>
-	<version>0.0.17-SNAPSHOT</version>
+	<version>0.0.19-SNAPSHOT</version>
 	<name>SpringSeleniumAgent</name>
 	<description>SpringSeleniumAgent</description>
 	<properties>
 		<java.version>11</java.version>
-		<spring-cloud.version>2021.0.3</spring-cloud.version>
+		<spring-cloud.version>2023.0</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -98,7 +98,7 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
-			<version>3.0.10</version>
+			<version>3.2.3</version>
 		</dependency>
 
 		<dependency>
@@ -110,7 +110,7 @@
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
-			<version>5.9.1</version>
+			<version>5.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
