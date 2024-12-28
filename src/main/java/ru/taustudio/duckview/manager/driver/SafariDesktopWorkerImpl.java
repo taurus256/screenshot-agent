@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.safari.SafariDriver;
 import org.springframework.core.io.ByteArrayResource;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
@@ -98,7 +99,7 @@ public class SafariDesktopWorkerImpl implements Worker {
                 tryCounter = MAX_TRY_ATTEMPTS;
                 feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
                     Map.of("description", "ERROR: max attempts count exceed!"));
-                System.out.println("ERROR: max attempts count exceed!" );
+                System.out.println("ERROR: max attempts count exceed!");
             }
         } catch (Throwable trw){
             tryCounter--;
