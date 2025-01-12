@@ -128,11 +128,11 @@ public class SafariDesktopWorkerImpl implements Worker {
     }
 
     private WebDriver initDriver() {
-        //return driverSupplier.get();
-        SafariDriverService service = new SafariDriverService.Builder()
-                .withLogging(true)
-                .build();
-
-        return new SafariDriver(service);
+        return driverSupplier.get();
+//        SafariDriverService service = new SafariDriverService.Builder()
+//                .withLogging(true)
+//                .build();
+//
+//        return new SafariDriver(service);
     }
 }

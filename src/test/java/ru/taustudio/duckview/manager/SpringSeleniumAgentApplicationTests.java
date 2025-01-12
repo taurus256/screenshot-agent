@@ -1,14 +1,14 @@
 package ru.taustudio.duckview.manager;
 
 import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.remote.MobileCapabilityType;
+import io.appium.java_client.ios.options.XCUITestOptions;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
+//import org.openqa.selenium.remote.DesiredCapabilities;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
 import pazone.ashot.ShootingStrategies;
@@ -30,7 +30,7 @@ import java.util.Set;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SpringSeleniumAgentApplicationTests {
 	private static IOSDriver driver;
-	private static final Device device = Device.IPHONE_SE;
+	private static final Device device = Device.IPHONE_PRO;
 	private static String webWiewHandle;
 	private static Set<String> initialHandles;
 
@@ -38,24 +38,38 @@ class SpringSeleniumAgentApplicationTests {
 	public static void contextLoads() {
 		System.out.println("Device: " + device);
 		System.out.println("INITIALIZATION TEST...");
-		DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-		desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
-		desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "16.1");
-		desiredCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest");
-		desiredCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Safari");
-		desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, device.getSystemName());
-		desiredCapabilities.setCapability("wdaStartupRetries", "4");
-		desiredCapabilities.setCapability("iosInstallPause", "30000");
-		desiredCapabilities.setCapability("wdaStartupRetryInterval", "20000");
+//		DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+//		desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
+//		desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "16.1");
+//		desiredCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest");
+//		desiredCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Safari");
+//		desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, device.getSystemName());
+//		desiredCapabilities.setCapability("wdaStartupRetries", "4");
+//		desiredCapabilities.setCapability("iosInstallPause", "30000");
+//		desiredCapabilities.setCapability("wdaStartupRetryInterval", "20000");
+//		// время, в течение которого держится сессия
+//		desiredCapabilities.setCapability("newCommandTimeout", "3600");
+
+		XCUITestOptions options = new XCUITestOptions()
+				.setPlatformName("iOS")
+				.setPlatformVersion("16.2")
+				.setAutomationName("XCUITest")
+				.setDeviceName(device.getSystemName());
+		options.setCapability("wdaStartupRetries", "4");
+		options.setCapability("iosInstallPause", "30000");
+		options.setCapability("wdaStartupRetryInterval", "20000");
+		options.setCapability("appium:usePreinstalledWDA", true);
+		options.setCapability("browserName", "Safari");
 		// время, в течение которого держится сессия
-		desiredCapabilities.setCapability("newCommandTimeout", "3600");
+		options.setCapability("newCommandTimeout", "3600");
+
 		URL url = null;
 		try {
 			url = new URL("http://127.0.0.1:4723");
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
-		driver = new IOSDriver(url, desiredCapabilities);
+		driver = new IOSDriver(url, options);
 		// получаем имя режима, который не NATIVE_APP
 		initialHandles = driver.getContextHandles();
 	}

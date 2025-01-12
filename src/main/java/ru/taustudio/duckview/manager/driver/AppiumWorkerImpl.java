@@ -6,7 +6,6 @@ import static pazone.ashot.ShootingStrategies.simple;
 import static pazone.ashot.ShootingStrategies.viewportPasting;
 
 import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.remote.MobileCapabilityType;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +18,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.Scheduled;
+import io.appium.java_client.ios.options.XCUITestOptions;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
@@ -95,27 +95,27 @@ public class AppiumWorkerImpl implements Worker {
     private void initDriver() throws InterruptedException {
         System.out.println("Device: " + device);
         System.out.println("INITIALIZATION...");
-        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
-        desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "16.4");
-        desiredCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest");
-        desiredCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Safari");
-        desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, device.getSystemName());
-        desiredCapabilities.setCapability("appium:usePreinstalledWDA", true);
-        desiredCapabilities.setCapability("appium:webviewConnectTimeout", 120000);
 
-        desiredCapabilities.setCapability("wdaStartupRetries", "10");
-        desiredCapabilities.setCapability("iosInstallPause", "30000");
-        desiredCapabilities.setCapability("wdaStartupRetryInterval", "20000");
+        XCUITestOptions options = new XCUITestOptions()
+                .setPlatformName("iOS")
+                .setPlatformVersion("16.4")
+                .setAutomationName("XCUITest")
+                .setDeviceName(device.getSystemName());
+        options.setCapability("appium:usePreinstalledWDA", true);
+        options.setCapability("appium:webviewConnectTimeout", 120000);
+
+        options.setCapability("wdaStartupRetries", "10");
+        options.setCapability("iosInstallPause", "30000");
+        options.setCapability("wdaStartupRetryInterval", "20000");
         // время, в течение которого держится сессия
-        desiredCapabilities.setCapability("newCommandTimeout", "3600");
+        options.setCapability("newCommandTimeout", "3600");
         URL url;
         try {
             url = new URL("http://127.0.0.1:".concat(appiumPort));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        driver = new IOSDriver(url, desiredCapabilities);
+        driver = new IOSDriver(url, options);
         System.out.println("CONFIGURE BROWSER...");
         initialHandles = driver.getContextHandles();
         enterPrivateMode();
