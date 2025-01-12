@@ -8,10 +8,10 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariDriverService;
 import org.springframework.core.io.ByteArrayResource;
 import pazone.ashot.AShot;
 import pazone.ashot.Screenshot;
-import pazone.ashot.ShootingStrategies;
 import ru.taustudio.duckview.manager.SafariViewportPastingDecorator;
 import ru.taustudio.duckview.manager.screenshots.ScreenshotControlFeignClient;
 
@@ -87,14 +87,13 @@ public class SafariDesktopWorkerImpl implements Worker {
                 return app.getInstances().get(0).getHomePageUrl();
             }
         }
-        return null;
+        throw new IllegalStateException("Cannot get CONTROL-APP address from Eureka!");
     }
 
     public void doScreenshot(String jobUUID, String url, Integer width, Integer height) {
         try {
             if (tryCounter > 0){
                 tryScreenshot(jobUUID, url, width, height);
-                tryCounter = MAX_TRY_ATTEMPTS;
             } else {
                 tryCounter = MAX_TRY_ATTEMPTS;
                 feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
@@ -103,7 +102,7 @@ public class SafariDesktopWorkerImpl implements Worker {
             }
         } catch (Throwable trw){
             tryCounter--;
-            System.out.println("RETRYING, has " + tryCounter + " attempts");
+            System.out.println("RETRYING, " + tryCounter + " attempts left");
             doScreenshot(jobUUID, url, width, height);
         }
     }
@@ -113,7 +112,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
         WebDriver driver = initDriver();
         driver.get(url);
-        System.out.println("Setting size to " + width + diff + " x " + height);
+        System.out.println("Setting size to " + width + " x " + height + " with diff " + diff);
         driver.manage().window().setSize(new Dimension(width + diff, height));
         System.out.println("Do screenshot ");
         Screenshot s = new AShot()
@@ -129,6 +128,11 @@ public class SafariDesktopWorkerImpl implements Worker {
     }
 
     private WebDriver initDriver() {
-        return driverSupplier.get();
+        //return driverSupplier.get();
+        SafariDriverService service = new SafariDriverService.Builder()
+                .withLogging(true)
+                .build();
+
+        return new SafariDriver(service);
     }
 }
