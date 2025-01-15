@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.taustudio.duckview</groupId>
 	<artifactId>SpringSeleniumAgent</artifactId>
-	<version>0.0.20-SNAPSHOT-NEW</version>
+	<version>0.0.21-SNAPSHOT-NEW</version>
 	<name>SpringSeleniumAgent</name>
 	<description>SpringSeleniumAgent</description>
 	<properties>

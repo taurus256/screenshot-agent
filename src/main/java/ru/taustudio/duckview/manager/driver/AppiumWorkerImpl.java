@@ -12,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +108,7 @@ public class AppiumWorkerImpl implements Worker {
         options.setCapability("wdaStartupRetryInterval", "20000");
         // время, в течение которого держится сессия
         options.setCapability("newCommandTimeout", "3600");
+        options.setCapability("browserName", "Safari");
         URL url;
         try {
             url = new URL("http://127.0.0.1:".concat(appiumPort));
