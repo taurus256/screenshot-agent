@@ -5,6 +5,7 @@ import static pazone.ashot.ShootingStrategies.scaling;
 import static pazone.ashot.ShootingStrategies.simple;
 import static pazone.ashot.ShootingStrategies.viewportPasting;
 
+import feign.FeignException;
 import io.appium.java_client.ios.IOSDriver;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -138,27 +139,29 @@ public class AppiumWorkerImpl implements Worker {
         try {
             feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
             System.out.println(
-                "Preparing render screenshot from url = " + url + ", save to " + System.getProperty(
-                    "user.dir"));
+                    "Preparing render screenshot from url = " + url + ", save to " + System.getProperty(
+                            "user.dir"));
             ((WebDriver) driver).get(url);
             System.out.println("Do screenshot ");
 
             Screenshot s = new AShot()
-                .shootingStrategy(getStrategyForDevice(device))
-                .takeScreenshot(driver);
+                    .shootingStrategy(getStrategyForDevice(device))
+                    .takeScreenshot(driver);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageOutputStream is = new FileCacheImageOutputStream(os,
-                new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
+                    new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
             ImageIO.write(s.getImage(), "PNG", is);
             System.out.println("Screenshot was taken");
             feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
             System.out.println("Screenshot was sent");
+        } catch (FeignException.BadRequest brex) {
+            System.out.println("SERVER REQUEST ERROR: " + brex.getMessage());
+            System.out.println("The job is probably outdated and has been deleted");
         } catch (Exception ex){
             feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
                 Map.of("description", StringUtils.defaultString(ex.getMessage())));
             System.out.println("ERROR: " + ex.getMessage());
-        } finally {
             closePrivateTab();
         }
     }

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import feign.FeignException;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
@@ -112,6 +113,9 @@ public class SeleniumScreenshotWorkerImpl implements Worker {
                 is);
             driver.quit();
             feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+        } catch (FeignException.BadRequest brex) {
+            System.out.println("SERVER REQUEST ERROR: " + brex.getMessage());
+            System.out.println("The job is probably outdated and has been deleted");
         } catch (Throwable err){
             feignClient.changeJobStatus(jobUUID, JobStatus.ERROR, Map.of("description",
                 StringUtils.defaultString(err.getMessage())));

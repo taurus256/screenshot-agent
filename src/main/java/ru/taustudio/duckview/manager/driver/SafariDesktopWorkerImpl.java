@@ -3,6 +3,8 @@ package ru.taustudio.duckview.manager.driver;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import java.util.Map;
+
+import feign.FeignException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -108,23 +110,28 @@ public class SafariDesktopWorkerImpl implements Worker {
     }
 
     private void tryScreenshot(String jobUUID, String url, Integer width, Integer height) throws IOException {
-        System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
-        feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
-        WebDriver driver = initDriver();
-        driver.get(url);
-        System.out.println("Setting size to " + width + " x " + height + " with diff " + diff);
-        driver.manage().window().setSize(new Dimension(width + diff, height));
-        System.out.println("Do screenshot ");
-        Screenshot s = new AShot()
-                .shootingStrategy(new SafariViewportPastingDecorator(simple())
-                    .withScrollTimeout(aShotTimeout)
-                    .withIntersection(15))
-                .takeScreenshot(driver);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageOutputStream is= new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp" ));
-        ImageIO.write(s.getImage().getSubimage(0, 0, width, s.getImage().getHeight()), "PNG", is);
-        driver.quit();
-        feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+        try {
+            System.out.println("Preparing render screenshot from url = " + url + ", save to " + System.getProperty("user.dir"));
+            feignClient.changeJobStatus(jobUUID, JobStatus.IN_PROGRESS);
+            WebDriver driver = initDriver();
+            driver.get(url);
+            System.out.println("Setting size to " + width + " x " + height + " with diff " + diff);
+            driver.manage().window().setSize(new Dimension(width + diff, height));
+            System.out.println("Do screenshot ");
+            Screenshot s = new AShot()
+                    .shootingStrategy(new SafariViewportPastingDecorator(simple())
+                            .withScrollTimeout(aShotTimeout)
+                            .withIntersection(15))
+                    .takeScreenshot(driver);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageOutputStream is = new FileCacheImageOutputStream(os, new File("windows".equals(operationSystem) ? "C:\\Temp" : "/tmp"));
+            ImageIO.write(s.getImage().getSubimage(0, 0, width, s.getImage().getHeight()), "PNG", is);
+            driver.quit();
+            feignClient.sendResult(jobUUID, new ByteArrayResource(os.toByteArray()));
+        } catch (FeignException.BadRequest brex) {
+                System.out.println("SERVER REQUEST ERROR: " + brex.getMessage());
+                System.out.println("The job is probably outdated and has been deleted");
+        }
     }
 
     private WebDriver initDriver() {
