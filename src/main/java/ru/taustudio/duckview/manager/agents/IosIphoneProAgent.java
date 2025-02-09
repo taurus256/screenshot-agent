@@ -37,6 +37,6 @@ public class IosIphoneProAgent extends Agent {
 
   @Override
   protected void closeBrowser() throws IOException {
-    System.out.println("Browser destroy operation for " + getAgentName() + " has not implemented");
+    getWorker().returnBrowserToInitialState();
   }
 }

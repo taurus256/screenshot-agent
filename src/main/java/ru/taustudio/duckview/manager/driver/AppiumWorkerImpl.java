@@ -8,6 +8,8 @@ import static pazone.ashot.ShootingStrategies.viewportPasting;
 import feign.FeignException;
 import io.appium.java_client.ios.IOSDriver;
 import java.util.Map;
+
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
@@ -162,8 +164,14 @@ public class AppiumWorkerImpl implements Worker {
             feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
                 Map.of("description", StringUtils.defaultString(ex.getMessage())));
             System.out.println("ERROR: " + ex.getMessage());
+        } finally {
             closePrivateTab();
         }
+    }
+
+    @Override
+    public void returnBrowserToInitialState(){
+            closePrivateTab();
     }
 
     private ShootingStrategy getStrategyForDevice(Device device) {
@@ -199,6 +207,7 @@ public class AppiumWorkerImpl implements Worker {
         clickElement("//XCUIElementTypeButton[@name=\"TabViewDoneButton\"]");
     }
 
+    @Synchronized
     public void closePrivateTab() {
         try {
         printContext();
