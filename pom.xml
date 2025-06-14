@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.taustudio.duckview</groupId>
 	<artifactId>SpringSeleniumAgent</artifactId>
-	<version>0.0.23-SNAPSHOT</version>
+	<version>0.0.24-SNAPSHOT</version>
 	<name>SpringSeleniumAgent</name>
 	<description>SpringSeleniumAgent</description>
 	<properties>
@@ -116,7 +116,7 @@
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
-			<version>5.5.3</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
