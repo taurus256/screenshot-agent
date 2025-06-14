@@ -136,6 +136,7 @@ public class AppiumWorkerImpl implements Worker {
     }
 
     @Override
+    @Synchronized
     public void doScreenshot(String jobUUID, String url, Integer width, Integer height){
         lastCommandTime.set(Instant.now().getEpochSecond());
         try {
@@ -170,6 +171,7 @@ public class AppiumWorkerImpl implements Worker {
     }
 
     @Override
+    @Synchronized
     public void returnBrowserToInitialState(){
             closePrivateTab();
     }
