@@ -96,6 +96,7 @@ public class SafariDesktopWorkerImpl implements Worker {
         try {
             if (tryCounter > 0){
                 tryScreenshot(jobUUID, url, width, height);
+                tryCounter = MAX_TRY_ATTEMPTS;
             } else {
                 tryCounter = MAX_TRY_ATTEMPTS;
                 feignClient.changeJobStatus(jobUUID, JobStatus.ERROR,
