@@ -5,6 +5,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import lombok.SneakyThrows;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -30,9 +32,18 @@ public class MacFirefoxAgent extends Agent {
     WebDriverManager.firefoxdriver().setup();
   }
 
+  @SneakyThrows
   @Override
   protected void closeBrowser() throws IOException {
-    Process process = Runtime.getRuntime().exec("killall -9 Firefox");
+    // Сначала мягкое завершение (SIGTERM) — macOS не покажет диалог о краше
+    Process process = Runtime.getRuntime().exec("killall Firefox");
+
+    process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+
+    // Если не завершился — принудительно
+    if (process.exitValue() != 0) {
+      Runtime.getRuntime().exec("killall -9 Firefox");
+    }
     new BufferedReader(new InputStreamReader(process.getInputStream())).lines().forEach(
         System.out::println);
   }
